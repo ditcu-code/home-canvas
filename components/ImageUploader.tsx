@@ -5,6 +5,7 @@
 
 import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect, MutableRefObject } from 'react';
 import Button from '@/components/Button';
+import { computeRelativePositionFromPoint } from '@/services/positioning';
 
 interface ImageUploaderProps {
   id: string;
@@ -86,43 +87,9 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
   const handlePlacement = useCallback((clientX: number, clientY: number, currentTarget: HTMLDivElement) => {
     const img = imgRef.current;
     if (!img || !onProductDrop) return;
-
-    const containerRect = currentTarget.getBoundingClientRect();
-    const { naturalWidth, naturalHeight } = img;
-    const { width: containerWidth, height: containerHeight } = containerRect;
-
-    // Calculate the rendered image's dimensions inside the container (due to object-contain)
-    const imageAspectRatio = naturalWidth / naturalHeight;
-    const containerAspectRatio = containerWidth / containerHeight;
-
-    let renderedWidth, renderedHeight;
-    if (imageAspectRatio > containerAspectRatio) {
-      renderedWidth = containerWidth;
-      renderedHeight = containerWidth / imageAspectRatio;
-    } else {
-      renderedHeight = containerHeight;
-      renderedWidth = containerHeight * imageAspectRatio;
-    }
-    
-    const offsetX = (containerWidth - renderedWidth) / 2;
-    const offsetY = (containerHeight - renderedHeight) / 2;
-
-    const pointX = clientX - containerRect.left;
-    const pointY = clientY - containerRect.top;
-
-    const imageX = pointX - offsetX;
-    const imageY = pointY - offsetY;
-
-    // Check if the action was outside the image area (in the padding)
-    if (imageX < 0 || imageX > renderedWidth || imageY < 0 || imageY > renderedHeight) {
-      console.warn("Action was outside the image boundaries.");
-      return;
-    }
-
-    const xPercent = (imageX / renderedWidth) * 100;
-    const yPercent = (imageY / renderedHeight) * 100;
-
-    onProductDrop({ x: pointX, y: pointY }, { xPercent, yPercent });
+    const res = computeRelativePositionFromPoint(img, currentTarget, clientX, clientY);
+    if (!res) return;
+    onProductDrop(res.position, res.relative);
   }, [onProductDrop]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {

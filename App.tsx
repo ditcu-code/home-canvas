@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { generateCompositeImage } from '@/services/geminiService';
 import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
@@ -20,6 +20,7 @@ import UploadView from '@/components/UploadView';
 import ControlsBar from '@/components/ControlsBar';
 import { useRotatingMessages } from '@/hooks/useRotatingMessages';
 import { useObjectUrlCleanup } from '@/hooks/useObjectUrlCleanup';
+import { useTouchDnD } from '@/hooks/useTouchDnD';
 
 // Pre-load a transparent image to use for hiding the default drag ghost.
 // This prevents a race condition on the first drag.
@@ -46,11 +47,6 @@ const App: React.FC = () => {
   const [jewelryScale, setJewelryScale] = useState<number>(1);
   const [lastDropRelativePosition, setLastDropRelativePosition] = useState<{ xPercent: number; yPercent: number } | null>(null);
 
-  // State for touch drag & drop
-  const [isTouchDragging, setIsTouchDragging] = useState<boolean>(false);
-  const [touchGhostPosition, setTouchGhostPosition] = useState<{x: number, y: number} | null>(null);
-  const [isHoveringDropZone, setIsHoveringDropZone] = useState<boolean>(false);
-  const [touchOrbPosition, setTouchOrbPosition] = useState<{x: number, y: number} | null>(null);
   const sceneImgRef = useRef<HTMLImageElement>(null);
   // Refs to support opening file pickers from "Change" buttons
   const productFileInputRef = useRef<HTMLInputElement>(null);
@@ -205,94 +201,15 @@ const App: React.FC = () => {
 
   // Effects above are handled by hooks now
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!selectedProduct) return;
-    // Prevent page scroll
-    e.preventDefault();
-    setIsTouchDragging(true);
-    const touch = e.touches[0];
-    setTouchGhostPosition({ x: touch.clientX, y: touch.clientY });
-  };
-
-  useEffect(() => {
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isTouchDragging) return;
-      const touch = e.touches[0];
-      setTouchGhostPosition({ x: touch.clientX, y: touch.clientY });
-      
-      const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-      const dropZone = elementUnderTouch?.closest<HTMLDivElement>('[data-dropzone-id="scene-uploader"]');
-
-      if (dropZone) {
-          const rect = dropZone.getBoundingClientRect();
-          setTouchOrbPosition({ x: touch.clientX - rect.left, y: touch.clientY - rect.top });
-          setIsHoveringDropZone(true);
-      } else {
-          setIsHoveringDropZone(false);
-          setTouchOrbPosition(null);
-      }
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!isTouchDragging) return;
-      
-      const touch = e.changedTouches[0];
-      const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-      const dropZone = elementUnderTouch?.closest<HTMLDivElement>('[data-dropzone-id="scene-uploader"]');
-
-      if (dropZone && sceneImgRef.current) {
-          const img = sceneImgRef.current;
-          const containerRect = dropZone.getBoundingClientRect();
-          const { naturalWidth, naturalHeight } = img;
-          const { width: containerWidth, height: containerHeight } = containerRect;
-
-          const imageAspectRatio = naturalWidth / naturalHeight;
-          const containerAspectRatio = containerWidth / containerHeight;
-
-          let renderedWidth, renderedHeight;
-          if (imageAspectRatio > containerAspectRatio) {
-              renderedWidth = containerWidth;
-              renderedHeight = containerWidth / imageAspectRatio;
-          } else {
-              renderedHeight = containerHeight;
-              renderedWidth = containerHeight * imageAspectRatio;
-          }
-          
-          const offsetX = (containerWidth - renderedWidth) / 2;
-          const offsetY = (containerHeight - renderedHeight) / 2;
-
-          const dropX = touch.clientX - containerRect.left;
-          const dropY = touch.clientY - containerRect.top;
-
-          const imageX = dropX - offsetX;
-          const imageY = dropY - offsetY;
-          
-          if (!(imageX < 0 || imageX > renderedWidth || imageY < 0 || imageY > renderedHeight)) {
-            const xPercent = (imageX / renderedWidth) * 100;
-            const yPercent = (imageY / renderedHeight) * 100;
-            
-            handleProductDrop({ x: dropX, y: dropY }, { xPercent, yPercent });
-          }
-      }
-
-      setIsTouchDragging(false);
-      setTouchGhostPosition(null);
-      setIsHoveringDropZone(false);
-      setTouchOrbPosition(null);
-    };
-
-    if (isTouchDragging) {
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
-      window.addEventListener('touchmove', handleTouchMove, { passive: false });
-      window.addEventListener('touchend', handleTouchEnd, { passive: false });
+  const touch = useTouchDnD({
+    enabled: !!selectedProduct,
+    sceneImgRef,
+    onDrop: (position, relative) => {
+      handleProductDrop(position, relative);
     }
+  });
 
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isTouchDragging, handleProductDrop]);
+  // Touch DnD now handled by useTouchDnD
 
   const renderContent = () => {
     if (error) {
@@ -328,7 +245,7 @@ const App: React.FC = () => {
                       e.dataTransfer.effectAllowed = 'move';
                       e.dataTransfer.setDragImage(transparentDragImage, 0, 0);
                   }}
-                  onTouchStart={handleTouchStart}
+                  onTouchStart={touch.handleTouchStart}
                   className="cursor-move w-full max-w-xs"
               >
                   <ObjectCard product={selectedProduct!} isSelected={true} />
@@ -358,8 +275,8 @@ const App: React.FC = () => {
                   onDebugClick={() => setIsDebugModalOpen(true)}
                   showDownloadButton={!!generatedSceneUrlForDownload && !isLoading}
                   downloadUrl={generatedSceneUrlForDownload}
-                  isTouchHovering={isHoveringDropZone}
-                  touchOrbPosition={touchOrbPosition}
+                  isTouchHovering={touch.isHoveringDropZone}
+                  touchOrbPosition={touch.touchOrbPosition}
                   openDialogRef={sceneUploaderOpenRef}
               />
             </div>
@@ -392,8 +309,8 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-zinc-800 flex items-center justify-center p-4 md:p-8">
       <TouchGhost 
-        imageUrl={isTouchDragging ? productImageUrl : null} 
-        position={touchGhostPosition}
+        imageUrl={touch.isTouchDragging ? productImageUrl : null} 
+        position={touch.touchGhostPosition}
       />
       <div className="flex flex-col items-center gap-8 w-full">
         <Header />
