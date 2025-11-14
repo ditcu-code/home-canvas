@@ -16,6 +16,10 @@ import Spinner from '@/components/Spinner';
 import DebugModal from '@/components/DebugModal';
 import TouchGhost from '@/components/TouchGhost';
 import ErrorState from '@/components/ErrorState';
+import UploadView from '@/components/UploadView';
+import ControlsBar from '@/components/ControlsBar';
+import { useRotatingMessages } from '@/hooks/useRotatingMessages';
+import { useObjectUrlCleanup } from '@/hooks/useObjectUrlCleanup';
 
 // Pre-load a transparent image to use for hiding the default drag ghost.
 // This prevents a race condition on the first drag.
@@ -31,7 +35,6 @@ const App: React.FC = () => {
   const [sceneImage, setSceneImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [persistedOrbPosition, setPersistedOrbPosition] = useState<{x: number, y: number} | null>(null);
   const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
   const [debugPrompt, setDebugPrompt] = useState<string | null>(null);
@@ -55,6 +58,11 @@ const App: React.FC = () => {
   
   const sceneImageUrl = sceneImage ? URL.createObjectURL(sceneImage) : null;
   const productImageUrl = selectedProduct ? selectedProduct.imageUrl : null;
+
+  // Hooks: URL cleanup + rotating loading messages
+  useObjectUrlCleanup(sceneImageUrl);
+  useObjectUrlCleanup(productImageUrl);
+  const loadingMessageIndex = useRotatingMessages(isLoading, loadingMessages, 3000);
 
   // Centralized generation-state reset to avoid repetition
   const resetGenerationState = useCallback(() => {
@@ -195,34 +203,7 @@ const App: React.FC = () => {
     }
   }, [productImageFile, originalSceneImage, selectedProduct, lastDropRelativePosition, jewelryScale]);
 
-  useEffect(() => {
-    // Clean up the scene's object URL when the component unmounts or the URL changes
-    return () => {
-        if (sceneImageUrl) URL.revokeObjectURL(sceneImageUrl);
-    };
-  }, [sceneImageUrl]);
-  
-  useEffect(() => {
-    // Clean up the product's object URL when the component unmounts or the URL changes
-    return () => {
-        if (productImageUrl && productImageUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(productImageUrl);
-        }
-    };
-  }, [productImageUrl]);
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (isLoading) {
-        setLoadingMessageIndex(0); // Reset on start
-        interval = setInterval(() => {
-            setLoadingMessageIndex(prevIndex => (prevIndex + 1) % loadingMessages.length);
-        }, 3000);
-    }
-    return () => {
-        if (interval) clearInterval(interval);
-    };
-  }, [isLoading]);
+  // Effects above are handled by hooks now
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!selectedProduct) return;
@@ -320,51 +301,17 @@ const App: React.FC = () => {
     
     if (!productImageFile || !sceneImage) {
       return (
-        <div className="w-full max-w-6xl mx-auto animate-fade-in">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <div className="flex flex-col">
-              <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Jewelry</h2>
-              <ImageUploader 
-                id="product-uploader"
-                onFileSelect={handleProductImageUpload}
-                imageUrl={productImageUrl}
-                // We open a hidden input for product; no openDialogRef needed here
-              />
-              {productImageFile && (
-                <div className="text-center mt-4">
-                  <div className="h-5 flex items-center justify-center">
-                    <Button variant="link" size="sm" onClick={() => productFileInputRef.current?.click()}>
-                      Change Jewelry
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Scene</h2>
-              <ImageUploader 
-                id="scene-uploader"
-                onFileSelect={handleSceneImageUpload}
-                imageUrl={sceneImageUrl}
-                openDialogRef={sceneUploaderOpenRef}
-              />
-              {sceneImage && (
-                <div className="text-center mt-4">
-                  <div className="h-5 flex items-center justify-center">
-                    <Button variant="link" size="sm" onClick={() => sceneUploaderOpenRef.current?.()}>
-                      Change Scene
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="text-center mt-10 min-h-[4rem] flex flex-col justify-center items-center">
-            <p className="text-zinc-500 animate-fade-in">
-              Upload a jewelry photo and a scene photo to begin.
-            </p>
-          </div>
-        </div>
+        <UploadView
+          productImageUrl={productImageUrl}
+          sceneImageUrl={sceneImageUrl}
+          onUploadProduct={handleProductImageUpload}
+          onUploadScene={handleSceneImageUpload}
+          onChangeProduct={() => productFileInputRef.current?.click()}
+          onChangeScene={() => sceneUploaderOpenRef.current?.()}
+          canChangeProduct={!!productImageFile}
+          canChangeScene={!!sceneImage}
+          openSceneDialogRef={sceneUploaderOpenRef}
+        />
       );
     }
 
@@ -416,24 +363,14 @@ const App: React.FC = () => {
                   openDialogRef={sceneUploaderOpenRef}
               />
             </div>
-            <div className="text-center mt-4">
-              <div className="min-h-[2rem] flex items-center justify-center gap-4 flex-wrap">
-                {generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage && (
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => handleAdjustScale(-0.1)}>Smaller</Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleAdjustScale(0.1)}>Bigger</Button>
-                  </div>
-                )}
-                {sceneImage && !isLoading && (
-                  <Button variant="link" size="sm" onClick={() => sceneUploaderOpenRef.current?.()}>
-                    Change Scene
-                  </Button>
-                )}
-                {productImageFile && sceneImage && !isLoading && (
-                  <Button variant="ghost" size="sm" onClick={handleReset}>Start Over</Button>
-                )}
-              </div>
-            </div>
+            <ControlsBar
+              canAdjust={!!(generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage)}
+              onAdjustScale={handleAdjustScale}
+              canChangeScene={!!(sceneImage && !isLoading)}
+              onChangeScene={() => sceneUploaderOpenRef.current?.()}
+              canReset={!!(productImageFile && sceneImage && !isLoading)}
+              onReset={handleReset}
+            />
           </div>
         </div>
         <div className="text-center mt-10 min-h-[8rem] flex flex-col justify-center items-center">
