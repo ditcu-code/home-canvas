@@ -4,6 +4,7 @@
 */
 
 import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect, MutableRefObject } from 'react';
+import Button from '@/components/Button';
 
 interface ImageUploaderProps {
   id: string;
@@ -179,11 +180,16 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
   const currentOrbPosition = orbPosition || touchOrbPosition;
   const isActionable = isDropZone || !imageUrl;
 
-  const uploaderClasses = `w-full aspect-video bg-zinc-100 border-2 border-dashed rounded-lg flex items-center justify-center transition-all duration-300 relative overflow-hidden ${
-      showHoverState ? 'border-blue-500 bg-blue-50 is-dragging-over'
-    : isDropZone ? 'border-zinc-400 cursor-crosshair'
-    : 'border-zinc-300 hover:border-blue-500 cursor-pointer'
-  } ${!isActionable ? 'cursor-default' : ''}`;
+  const uploaderClasses = [
+    'w-full aspect-video rounded-xl bg-white/70 backdrop-blur-sm border border-zinc-200 shadow-sm',
+    'transition-all duration-300 relative overflow-hidden ring-1 ring-inset ring-transparent',
+    showHoverState
+      ? 'border-blue-300 ring-blue-400/40 bg-blue-50/70 is-dragging-over'
+      : (isDropZone
+          ? 'border-zinc-300 cursor-crosshair hover:ring-blue-400/40 hover:border-blue-300'
+          : 'border-zinc-200 cursor-pointer hover:ring-blue-400/40 hover:border-blue-300'),
+    !isActionable ? 'cursor-default' : ''
+  ].join(' ');
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -235,41 +241,42 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
             { (showDebugButton || showDownloadButton) && (
               <div className="absolute bottom-2 right-2 flex items-center gap-2 z-20">
                 {showDebugButton && onDebugClick && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDebugClick();
-                        }}
-                        className="bg-black bg-opacity-60 text-white text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-opacity-80 transition-all shadow-lg"
-                        aria-label="Show debug view"
-                    >
-                        Debug
-                    </button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); onDebugClick(); }}
+                    ariaLabel="Show debug view"
+                  >
+                    Debug
+                  </Button>
                 )}
                 {showDownloadButton && downloadUrl && (
-                    <a
-                        href={downloadUrl}
-                        download={`home-canvas-creation.jpeg`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center bg-blue-600 bg-opacity-80 text-white text-xs font-semibold pl-2 pr-3 py-1.5 rounded-md hover:bg-blue-700 hover:bg-opacity-90 transition-all shadow-lg no-underline"
-                        aria-label="Download generated image"
-                    >
-                        <DownloadIcon className="h-4 w-4 mr-1.5" />
-                        <span>Download</span>
-                    </a>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    href={downloadUrl}
+                    download={`home-canvas-creation.jpeg`}
+                    onClick={(e) => e.stopPropagation()}
+                    ariaLabel="Download generated image"
+                    className="pl-2 pr-3"
+                  >
+                    <DownloadIcon className="h-4 w-4 mr-1.5" />
+                    <span>Download</span>
+                  </Button>
                 )}
               </div>
             )}
           </>
         ) : (
-          <div className="text-center text-zinc-500 p-4">
+          <div className="text-center text-zinc-600 p-6">
             <UploadIcon />
-            <p>Click to upload or drag & drop</p>
+            <p className="font-medium">Click to upload or drag & drop</p>
+            <p className="text-xs text-zinc-500 mt-1">PNG or JPG, up to ~10MB</p>
           </div>
         )}
       </div>
       {fileTypeError && (
-        <div className="w-full mt-2 text-sm text-yellow-800 bg-yellow-100 border border-yellow-300 rounded-lg p-3 flex items-center animate-fade-in" role="alert">
+        <div className="w-full mt-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center animate-fade-in" role="alert">
             <WarningIcon />
             <span>{fileTypeError}</span>
         </div>

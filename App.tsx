@@ -9,6 +9,7 @@ import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
 import { Product } from '@/types';
 import Header from '@/components/Header';
+import Button from '@/components/Button';
 import ImageUploader from '@/components/ImageUploader';
 import ObjectCard from '@/components/ObjectCard';
 import Spinner from '@/components/Spinner';
@@ -332,12 +333,9 @@ const App: React.FC = () => {
               {productImageFile && (
                 <div className="text-center mt-4">
                   <div className="h-5 flex items-center justify-center">
-                    <button
-                      onClick={() => productFileInputRef.current?.click()}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-                    >
+                    <Button variant="link" size="sm" onClick={() => productFileInputRef.current?.click()}>
                       Change Jewelry
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -353,12 +351,9 @@ const App: React.FC = () => {
               {sceneImage && (
                 <div className="text-center mt-4">
                   <div className="h-5 flex items-center justify-center">
-                    <button
-                      onClick={() => sceneUploaderOpenRef.current?.()}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-                    >
+                    <Button variant="link" size="sm" onClick={() => sceneUploaderOpenRef.current?.()}>
                       Change Scene
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -394,12 +389,9 @@ const App: React.FC = () => {
             </div>
             <div className="text-center mt-4">
                <div className="h-5 flex items-center justify-center">
-                <button
-                    onClick={() => productFileInputRef.current?.click()}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-                >
-                    Change Jewelry
-                </button>
+                <Button variant="link" size="sm" onClick={() => productFileInputRef.current?.click()}>
+                  Change Jewelry
+                </Button>
                </div>
             </div>
           </div>
@@ -428,27 +420,17 @@ const App: React.FC = () => {
               <div className="min-h-[2rem] flex items-center justify-center gap-4 flex-wrap">
                 {generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage && (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleAdjustScale(-0.1)}
-                      className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
-                    >
-                      Smaller
-                    </button>
-                    <button
-                      onClick={() => handleAdjustScale(0.1)}
-                      className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
-                    >
-                      Bigger
-                    </button>
+                    <Button variant="ghost" size="sm" onClick={() => handleAdjustScale(-0.1)}>Smaller</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleAdjustScale(0.1)}>Bigger</Button>
                   </div>
                 )}
                 {sceneImage && !isLoading && (
-                  <button
-                    onClick={() => sceneUploaderOpenRef.current?.()}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-                  >
+                  <Button variant="link" size="sm" onClick={() => sceneUploaderOpenRef.current?.()}>
                     Change Scene
-                  </button>
+                  </Button>
+                )}
+                {productImageFile && sceneImage && !isLoading && (
+                  <Button variant="ghost" size="sm" onClick={handleReset}>Start Over</Button>
                 )}
               </div>
             </div>

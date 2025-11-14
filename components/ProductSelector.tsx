@@ -6,6 +6,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Product } from '../types';
 import ObjectCard from './ObjectCard';
+import Button from '@/components/Button';
 
 interface ProductSelectorProps {
     products: Product[];
@@ -105,12 +106,7 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({ products, onSelect, o
                 </button>
             </div>
             <div className="mt-8">
-                <button
-                    onClick={onAddOwnProductClick}
-                    className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold py-2 px-6 rounded-lg text-md transition-colors border border-zinc-300 shadow-sm"
-                >
-                    Add Your Own Jewelry!
-                </button>
+                <Button variant="ghost" onClick={onAddOwnProductClick}>Add Your Own Jewelry!</Button>
             </div>
         </div>
     );

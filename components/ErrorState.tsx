@@ -4,6 +4,7 @@
 */
 
 import React from 'react';
+import Button from '@/components/Button';
 
 interface ErrorStateProps {
   message: string;
@@ -12,18 +13,12 @@ interface ErrorStateProps {
 
 const ErrorState: React.FC<ErrorStateProps> = ({ message, onReset }) => {
   return (
-    <div className="text-center animate-fade-in bg-red-50 border border-red-200 p-8 rounded-lg max-w-2xl mx-auto">
-      <h2 className="text-3xl font-extrabold mb-4 text-red-800">An Error Occurred</h2>
-      <p className="text-lg text-red-700 mb-6">{message}</p>
-      <button
-        onClick={onReset}
-        className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors"
-      >
-        Try Again
-      </button>
+    <div className="text-center animate-fade-in bg-red-50 border border-red-200 p-8 rounded-xl max-w-2xl mx-auto shadow-sm">
+      <h2 className="text-2xl md:text-3xl font-extrabold mb-3 text-red-800">Something went wrong</h2>
+      <p className="text-base md:text-lg text-red-700 mb-6">{message}</p>
+      <Button variant="primary" onClick={onReset}>Try again</Button>
     </div>
   );
 };
 
 export default ErrorState;
-
