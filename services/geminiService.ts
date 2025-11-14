@@ -299,18 +299,18 @@ export const generateCompositeImage = async (
   const descriptionPrompt = `
 You are an expert scene analyst. I will provide you with an image that has a red marker on it.
 Your task is to provide a very dense, semantic description of what is at the exact location of the red marker.
-Be specific about surfaces, materials, and spatial relationships. This description will be used to guide another AI in placing a jewelry piece.
+Be specific about surfaces, objects, and spatial relationships. This description will be used to guide another AI in placing a new object.
 
 Example semantic descriptions:
-- "The jewelry location is on the dark grey fabric of the sofa cushion, in the middle section, slightly to the left of the white throw pillow."
-- "The jewelry location is on the light-colored wooden dresser top, inside a soft window light patch, about a foot from the leg of the brown leather armchair."
-- "The jewelry location is on the white marble countertop, just to the right of the stainless steel sink and behind the green potted plant."
+- "The product location is on the dark grey fabric of the sofa cushion, in the middle section, slightly to the left of the white throw pillow."
+- "The product location is on the light-colored wooden floor, in the patch of sunlight coming from the window, about a foot away from the leg of the brown leather armchair."
+- "The product location is on the white marble countertop, just to the right of the stainless steel sink and behind the green potted plant."
 
 On top of the semantic description above, give a rough relative-to-image description.
 
 Example relative-to-image descriptions:
-- "The jewelry location is about 10% away from the bottom-left of the image."
-- "The jewelry location is about 20% away from the right of the image."
+- "The product location is about 10% away from the bottom-left of the image."
+- "The product location is about 20% away from the right of the image."
 
 Provide only the two descriptions concatenated in a few sentences.
 `;
@@ -336,31 +336,24 @@ Provide only the two descriptions concatenated in a few sentences.
   const cleanEnvironmentImagePart = await fileToPart(resizedEnvironmentImage); // IMPORTANT: Use clean image
   
   const prompt = `
-**Role**
-You are a visual composition expert specializing in jewelry. Your task is to take a 'jewelry piece' image and seamlessly integrate it into a 'scene' image, adjusting for perspective, lighting, reflections, and scale.
+**Role:**
+You are a visual composition expert. Your task is to take a 'product' image and seamlessly integrate it into a 'scene' image, adjusting for perspective, lighting, and scale.
 
-**Inputs**
-- Jewelry piece: the first image. Ignore any background or padding; treat non-jewelry areas as transparent and preserve fine edges.
-- Scene: the second image. Ignore any padding.
+**Specifications:**
+-   **Product to add:**
+    The first image provided. It may be surrounded by black padding or background, which you should ignore and treat as transparent and only keep the product.
+-   **Scene to use:**
+    The second image provided. It may also be surrounded by black padding, which you should ignore.
+-   **Placement Instruction (Crucial):**
+    -   You must place the product at the location described below exactly. You should only place the product once. Use this dense, semantic description to find the exact spot in the scene.
+    -   **Product location Description:** "${semanticLocationDescription}"
+-   **Final Image Requirements:**
+    -   The output image's style, lighting, shadows, reflections, and camera perspective must exactly match the original scene.
+    -   Do not just copy and paste the product. You must intelligently re-render it to fit the context. Adjust the product's perspective and orientation to its most natural position, scale it appropriately, and ensure it casts realistic shadows according to the scene's light sources.
+    -   The product must have proportional realism. For example, a lamp product can't be bigger than a sofa in scene.
+    -   You must not return the original scene image without product placement. The product must be always present in the composite image.
 
-**Placement (Critical)**
-- Place the jewelry at the exact location described below. Place it only once.
-- Jewelry placement description: "${semanticLocationDescription}"
-
-**Jewelry Rendering Requirements**
-- Preserve delicate details: chains, prongs, clasps, filigree edges, and fine contours. Avoid halos or matte cutouts around edges.
-- Metals: match material and finish (gold/silver/platinum/rose gold). Maintain realistic specular highlights and reflections based on scene lighting.
-- Gemstones/diamonds: maintain color, facets, dispersion, and sparkle without overexposure; ensure highlights align with the scene’s light direction.
-- Shadows and contact: add accurate contact shadows/occlusion where the jewelry touches surfaces, skin, or fabric. Use appropriate softness based on distance to surface and light size.
-- Surfaces: on glossy surfaces (e.g., marble, lacquer), include subtle reflection/blur; on fabric/wood, ensure correct resting and slight indentation if applicable.
-- Skin/clothing: align to curvature; add micro‑occlusion along contact; avoid floating.
-- Scale: keep realistic proportions (rings relative to a finger, earrings to an ear, pendants to collarbone, bracelets to a wrist, etc.).
-
-**Global Requirements**
-- Match the scene’s perspective, white balance, noise, depth of field, and grain. Do not simply paste; re-render to fit context.
-- Do not return the original scene without the jewelry. The final image must include the jewelry at the specified location.
-
-Output only the composed image (no text).
+The output should ONLY be the final, composed image. Do not add any text or explanation.
 `;
 
   const textPart = { text: prompt };

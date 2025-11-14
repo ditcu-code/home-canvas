@@ -30,7 +30,7 @@ const TouchGhost: React.FC<TouchGhostProps> = ({ imageUrl, position }) => {
     <div style={style} className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-2">
       <img
         src={imageUrl}
-        alt="Dragging jewelry"
+        alt="Dragging product"
         className="w-full h-full object-contain"
       />
     </div>

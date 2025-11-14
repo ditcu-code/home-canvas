@@ -109,7 +109,7 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({ products, onSelect, o
                     onClick={onAddOwnProductClick}
                     className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold py-2 px-6 rounded-lg text-md transition-colors border border-zinc-300 shadow-sm"
                 >
-                    Add Your Own Jewelry!
+                    Add Your Own Product!
                 </button>
             </div>
         </div>
