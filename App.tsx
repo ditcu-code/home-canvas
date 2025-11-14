@@ -69,6 +69,9 @@ const App: React.FC = () => {
   const [isHoveringDropZone, setIsHoveringDropZone] = useState<boolean>(false);
   const [touchOrbPosition, setTouchOrbPosition] = useState<{x: number, y: number} | null>(null);
   const sceneImgRef = useRef<HTMLImageElement>(null);
+  // Refs to support opening file pickers from "Change" buttons
+  const productFileInputRef = useRef<HTMLInputElement>(null);
+  const sceneUploaderOpenRef = useRef<(() => void) | null>(null);
   
   const sceneImageUrl = sceneImage ? URL.createObjectURL(sceneImage) : null;
   const productImageUrl = selectedProduct ? selectedProduct.imageUrl : null;
@@ -85,6 +88,13 @@ const App: React.FC = () => {
         };
         setProductImageFile(file);
         setSelectedProduct(product);
+        // Clear generation-related state when changing jewelry
+        setPersistedOrbPosition(null);
+        setDebugImageUrl(null);
+        setDebugPrompt(null);
+        setGeneratedSceneUrlForDownload(null);
+        setJewelryScale(1);
+        setLastDropRelativePosition(null);
     } catch(err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Could not load the jewelry image. Details: ${errorMessage}`);
@@ -95,7 +105,22 @@ const App: React.FC = () => {
   const handleSceneImageUpload = useCallback((file: File) => {
     setSceneImage(file);
     setOriginalSceneImage(file);
+    // Clear generation-related state when changing scene
+    setPersistedOrbPosition(null);
+    setDebugImageUrl(null);
+    setDebugPrompt(null);
+    setGeneratedSceneUrlForDownload(null);
+    setJewelryScale(1);
+    setLastDropRelativePosition(null);
   }, []);
+
+  // Hidden input change handlers (for Change buttons)
+  const handleProductFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleProductImageUpload(file);
+    // Allow selecting the same file again later
+    e.currentTarget.value = '';
+  };
 
   // Instant Start feature removed
 
@@ -349,7 +374,20 @@ const App: React.FC = () => {
                 id="product-uploader"
                 onFileSelect={handleProductImageUpload}
                 imageUrl={productImageUrl}
+                // We open a hidden input for product; no openDialogRef needed here
               />
+              {productImageFile && (
+                <div className="text-center mt-4">
+                  <div className="h-5 flex items-center justify-center">
+                    <button
+                      onClick={() => productFileInputRef.current?.click()}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
+                    >
+                      Change Jewelry
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex flex-col">
               <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Scene</h2>
@@ -357,7 +395,20 @@ const App: React.FC = () => {
                 id="scene-uploader"
                 onFileSelect={handleSceneImageUpload}
                 imageUrl={sceneImageUrl}
+                openDialogRef={sceneUploaderOpenRef}
               />
+              {sceneImage && (
+                <div className="text-center mt-4">
+                  <div className="h-5 flex items-center justify-center">
+                    <button
+                      onClick={() => sceneUploaderOpenRef.current?.()}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
+                    >
+                      Change Scene
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="text-center mt-10 min-h-[4rem] flex flex-col justify-center items-center">
@@ -391,7 +442,7 @@ const App: React.FC = () => {
             <div className="text-center mt-4">
                <div className="h-5 flex items-center justify-center">
                 <button
-                    onClick={handleChangeProduct}
+                    onClick={() => productFileInputRef.current?.click()}
                     className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
                 >
                     Change Jewelry
@@ -417,6 +468,7 @@ const App: React.FC = () => {
                   downloadUrl={generatedSceneUrlForDownload}
                   isTouchHovering={isHoveringDropZone}
                   touchOrbPosition={touchOrbPosition}
+                  openDialogRef={sceneUploaderOpenRef}
               />
             </div>
             <div className="text-center mt-4">
@@ -439,7 +491,7 @@ const App: React.FC = () => {
                 )}
                 {sceneImage && !isLoading && (
                   <button
-                    onClick={handleChangeScene}
+                    onClick={() => sceneUploaderOpenRef.current?.()}
                     className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
                   >
                     Change Scene
@@ -482,6 +534,14 @@ const App: React.FC = () => {
         onClose={() => setIsDebugModalOpen(false)}
         imageUrl={debugImageUrl}
         prompt={debugPrompt}
+      />
+      {/* Hidden file inputs for Change buttons */}
+      <input
+        type="file"
+        ref={productFileInputRef}
+        className="hidden"
+        accept="image/png, image/jpeg"
+        onChange={handleProductFileInputChange}
       />
     </div>
   );

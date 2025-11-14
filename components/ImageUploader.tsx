@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect, MutableRefObject } from 'react';
 
 interface ImageUploaderProps {
   id: string;
@@ -19,6 +19,7 @@ interface ImageUploaderProps {
   downloadUrl?: string | null;
   isTouchHovering?: boolean;
   touchOrbPosition?: { x: number; y: number } | null;
+  openDialogRef?: MutableRefObject<(() => void) | null>;
 }
 
 const UploadIcon: React.FC = () => (
@@ -40,7 +41,7 @@ const WarningIcon: React.FC = () => (
 );
 
 
-const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, isTouchHovering = false, touchOrbPosition = null }, ref) => {
+const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, isTouchHovering = false, touchOrbPosition = null, openDialogRef }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -55,6 +56,17 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
       setFileTypeError(null);
     }
   }, [imageUrl]);
+
+  // Expose a method so parent buttons can open the file dialog
+  useEffect(() => {
+    if (!openDialogRef) return;
+    openDialogRef.current = () => {
+      inputRef.current?.click();
+    };
+    return () => {
+      openDialogRef.current = null;
+    };
+  }, [openDialogRef]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -200,6 +212,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
               alt={label || 'Uploaded Scene'} 
               className="w-full h-full object-contain" 
             />
+            
             <div 
                 className="drop-orb" 
                 style={{ 
