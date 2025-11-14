@@ -57,6 +57,11 @@ const App: React.FC = () => {
   const [debugPrompt, setDebugPrompt] = useState<string | null>(null);
   const [isDebugModalOpen, setIsDebugModalOpen] = useState(false);
   const [generatedSceneUrlForDownload, setGeneratedSceneUrlForDownload] = useState<string | null>(null);
+  // Preserve the originally uploaded scene for re-generations (e.g., resizing)
+  const [originalSceneImage, setOriginalSceneImage] = useState<File | null>(null);
+  // Allow post-generation size adjustments
+  const [jewelryScale, setJewelryScale] = useState<number>(1);
+  const [lastDropRelativePosition, setLastDropRelativePosition] = useState<{ xPercent: number; yPercent: number } | null>(null);
 
   // State for touch drag & drop
   const [isTouchDragging, setIsTouchDragging] = useState<boolean>(false);
@@ -87,6 +92,11 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleSceneImageUpload = useCallback((file: File) => {
+    setSceneImage(file);
+    setOriginalSceneImage(file);
+  }, []);
+
   // Instant Start feature removed
 
   const handleProductDrop = useCallback(async (position: {x: number, y: number}, relativePosition: { xPercent: number; yPercent: number; }) => {
@@ -95,15 +105,18 @@ const App: React.FC = () => {
       return;
     }
     setPersistedOrbPosition(position);
+    setLastDropRelativePosition(relativePosition);
     setIsLoading(true);
     setError(null);
     try {
+      const baseScene = originalSceneImage || sceneImage;
       const { finalImageUrl, debugImageUrl, finalPrompt } = await generateCompositeImage(
         productImageFile, 
         selectedProduct.name,
-        sceneImage,
-        sceneImage.name,
-        relativePosition
+        baseScene,
+        baseScene.name,
+        relativePosition,
+        jewelryScale
       );
       setGeneratedSceneUrlForDownload(finalImageUrl);
       setDebugImageUrl(debugImageUrl);
@@ -120,7 +133,7 @@ const App: React.FC = () => {
       setIsLoading(false);
       setPersistedOrbPosition(null);
     }
-  }, [productImageFile, sceneImage, selectedProduct]);
+  }, [productImageFile, sceneImage, selectedProduct, originalSceneImage, jewelryScale]);
 
 
   const handleReset = useCallback(() => {
@@ -134,6 +147,9 @@ const App: React.FC = () => {
     setDebugImageUrl(null);
     setDebugPrompt(null);
     setGeneratedSceneUrlForDownload(null);
+    setOriginalSceneImage(null);
+    setJewelryScale(1);
+    setLastDropRelativePosition(null);
   }, []);
 
   const handleChangeProduct = useCallback(() => {
@@ -144,15 +160,50 @@ const App: React.FC = () => {
     setDebugImageUrl(null);
     setDebugPrompt(null);
     setGeneratedSceneUrlForDownload(null);
+    setJewelryScale(1);
+    setLastDropRelativePosition(null);
   }, []);
   
   const handleChangeScene = useCallback(() => {
     setSceneImage(null);
+    setOriginalSceneImage(null);
     setPersistedOrbPosition(null);
     setDebugImageUrl(null);
     setDebugPrompt(null);
     setGeneratedSceneUrlForDownload(null);
+    setJewelryScale(1);
+    setLastDropRelativePosition(null);
   }, []);
+
+  const handleAdjustScale = useCallback(async (delta: number) => {
+    if (!productImageFile || !originalSceneImage || !selectedProduct || !lastDropRelativePosition) return;
+    const nextScale = Math.max(0.5, Math.min(2, jewelryScale + delta));
+    if (nextScale === jewelryScale) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { finalImageUrl, debugImageUrl, finalPrompt } = await generateCompositeImage(
+        productImageFile,
+        selectedProduct.name,
+        originalSceneImage,
+        originalSceneImage.name,
+        lastDropRelativePosition,
+        nextScale
+      );
+      setGeneratedSceneUrlForDownload(finalImageUrl);
+      setDebugImageUrl(debugImageUrl);
+      setDebugPrompt(finalPrompt);
+      const newSceneFile = dataURLtoFile(finalImageUrl, `generated-scene-${Date.now()}.jpeg`);
+      setSceneImage(newSceneFile);
+      setJewelryScale(nextScale);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(`Failed to adjust size. ${errorMessage}`);
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [productImageFile, originalSceneImage, selectedProduct, lastDropRelativePosition, jewelryScale]);
 
   useEffect(() => {
     // Clean up the scene's object URL when the component unmounts or the URL changes
@@ -304,7 +355,7 @@ const App: React.FC = () => {
               <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Scene</h2>
               <ImageUploader 
                 id="scene-uploader"
-                onFileSelect={setSceneImage}
+                onFileSelect={handleSceneImageUpload}
                 imageUrl={sceneImageUrl}
               />
             </div>
@@ -355,7 +406,7 @@ const App: React.FC = () => {
               <ImageUploader 
                   ref={sceneImgRef}
                   id="scene-uploader" 
-                  onFileSelect={setSceneImage} 
+                  onFileSelect={handleSceneImageUpload} 
                   imageUrl={sceneImageUrl}
                   isDropZone={!!sceneImage && !isLoading}
                   onProductDrop={handleProductDrop}
@@ -369,13 +420,29 @@ const App: React.FC = () => {
               />
             </div>
             <div className="text-center mt-4">
-              <div className="h-5 flex items-center justify-center">
+              <div className="min-h-[2rem] flex items-center justify-center gap-4 flex-wrap">
+                {generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleAdjustScale(-0.1)}
+                      className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
+                    >
+                      Smaller
+                    </button>
+                    <button
+                      onClick={() => handleAdjustScale(0.1)}
+                      className="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
+                    >
+                      Bigger
+                    </button>
+                  </div>
+                )}
                 {sceneImage && !isLoading && (
                   <button
-                      onClick={handleChangeScene}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
+                    onClick={handleChangeScene}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
                   >
-                      Change Scene
+                    Change Scene
                   </button>
                 )}
               </div>

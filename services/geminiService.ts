@@ -266,7 +266,8 @@ export const generateCompositeImage = async (
     objectDescription: string,
     environmentImage: File,
     environmentDescription: string,
-    dropPosition: { xPercent: number; yPercent: number; }
+    dropPosition: { xPercent: number; yPercent: number; },
+    scaleFactor: number = 1
 ): Promise<{ finalImageUrl: string; debugImageUrl: string; finalPrompt: string; }> => {
   console.log('Starting multi-step image generation process...');
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
@@ -334,6 +335,7 @@ Provide only the two descriptions concatenated in a few sentences.
   
   const objectImagePart = await fileToPart(resizedObjectImage);
   const cleanEnvironmentImagePart = await fileToPart(resizedEnvironmentImage); // IMPORTANT: Use clean image
+  const scalePercent = Math.round(scaleFactor * 100);
   
   const prompt = `
 **Role**
@@ -341,11 +343,20 @@ You are a visual composition expert specializing in jewelry. Your task is to tak
 
 **Inputs**
 - Jewelry piece: the first image. Ignore any background or padding; treat non-jewelry areas as transparent and preserve fine edges.
-- Scene: the second image. Ignore any padding.
+- Scene (clean): the second image. Ignore any padding.
+- Scene (marked): the third image is the same scene with a red circular marker indicating the precise placement region. Use this as a spatial hint only; do not include any red marker in the output.
 
 **Placement (Critical)**
 - Place the jewelry at the exact location described below. Place it only once.
 - Jewelry placement description: "${semanticLocationDescription}"
+
+**Replacement Rule (Critical)**
+- If the specified placement region overlaps an existing jewelry item (earring, stud, hoop, ring, necklace/pendant/chain, bracelet/bangle, piercing), remove the existing item completely and replace it with the new one.
+- Do not stack or overlay. Do not show both old and new jewelry. Exactly one jewelry item must remain after replacement.
+- For earrings: attach at the ear piercing. Remove any existing earring (stud/hoop/drop/clip) entirely; preserve the piercing hole and realistic contact/occlusion with the ear and hair.
+- For rings: remove any existing ring/band; wrap the new ring around the finger with correct occlusion (finger should cover the inner band where appropriate).
+- For necklaces: remove any existing chain/pendant/choker; drape the new chain naturally along the neck/collarbone with correct occlusions from hair/clothing.
+- For bracelets: remove any existing bracelet/bangle; wrap the new bracelet around the wrist with correct occlusion.
 
 **Jewelry Rendering Requirements**
 - Preserve delicate details: chains, prongs, clasps, filigree edges, and fine contours. Avoid halos or matte cutouts around edges.
@@ -354,7 +365,7 @@ You are a visual composition expert specializing in jewelry. Your task is to tak
 - Shadows and contact: add accurate contact shadows/occlusion where the jewelry touches surfaces, skin, or fabric. Use appropriate softness based on distance to surface and light size.
 - Surfaces: on glossy surfaces (e.g., marble, lacquer), include subtle reflection/blur; on fabric/wood, ensure correct resting and slight indentation if applicable.
 - Skin/clothing: align to curvature; add micro‑occlusion along contact; avoid floating.
-- Scale: keep realistic proportions (rings relative to a finger, earrings to an ear, pendants to collarbone, bracelets to a wrist, etc.).
+ - Scale: keep realistic proportions (rings relative to a finger, earrings to an ear, pendants to collarbone, bracelets to a wrist, etc.). Then adjust the final jewelry size to approximately ${scalePercent}% of that realistic size.
 
 **Global Requirements**
 - Match the scene’s perspective, white balance, noise, depth of field, and grain. Do not simply paste; re-render to fit context.
@@ -369,7 +380,7 @@ Output only the composed image (no text).
   
   const response: GenerateContentResponse = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
-    contents: { parts: [objectImagePart, cleanEnvironmentImagePart, textPart] }, // IMPORTANT: Use clean image
+    contents: { parts: [objectImagePart, cleanEnvironmentImagePart, markedEnvironmentImagePart, textPart] },
   });
 
   console.log('Received response.');
