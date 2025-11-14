@@ -4,45 +4,24 @@
 */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { generateCompositeImage } from './services/geminiService';
-import { Product } from './types';
-import Header from './components/Header';
-import ImageUploader from './components/ImageUploader';
-import ObjectCard from './components/ObjectCard';
-import Spinner from './components/Spinner';
-import DebugModal from './components/DebugModal';
-import TouchGhost from './components/TouchGhost';
+import { generateCompositeImage } from '@/services/geminiService';
+import { dataURLtoFile } from '@/services/fileUtils';
+import { loadingMessages } from '@/constants/loadingMessages';
+import { Product } from '@/types';
+import Header from '@/components/Header';
+import ImageUploader from '@/components/ImageUploader';
+import ObjectCard from '@/components/ObjectCard';
+import Spinner from '@/components/Spinner';
+import DebugModal from '@/components/DebugModal';
+import TouchGhost from '@/components/TouchGhost';
+import ErrorState from '@/components/ErrorState';
 
 // Pre-load a transparent image to use for hiding the default drag ghost.
 // This prevents a race condition on the first drag.
 const transparentDragImage = new Image();
 transparentDragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-// Helper to convert a data URL string to a File object
-const dataURLtoFile = (dataurl: string, filename: string): File => {
-    const arr = dataurl.split(',');
-    if (arr.length < 2) throw new Error("Invalid data URL");
-    const mimeMatch = arr[0].match(/:(.*?);/);
-    if (!mimeMatch || !mimeMatch[1]) throw new Error("Could not parse MIME type from data URL");
-
-    const mime = mimeMatch[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, {type:mime});
-}
-
-const loadingMessages = [
-    "Analyzing your jewelry...",
-    "Surveying the scene...",
-    "Describing placement location with AI...",
-    "Crafting the perfect composition prompt...",
-    "Generating photorealistic options...",
-    "Assembling the final scene..."
-];
+// Utilities and constants moved to dedicated modules
 
 
 const App: React.FC = () => {
@@ -76,6 +55,16 @@ const App: React.FC = () => {
   const sceneImageUrl = sceneImage ? URL.createObjectURL(sceneImage) : null;
   const productImageUrl = selectedProduct ? selectedProduct.imageUrl : null;
 
+  // Centralized generation-state reset to avoid repetition
+  const resetGenerationState = useCallback(() => {
+    setPersistedOrbPosition(null);
+    setDebugImageUrl(null);
+    setDebugPrompt(null);
+    setGeneratedSceneUrlForDownload(null);
+    setJewelryScale(1);
+    setLastDropRelativePosition(null);
+  }, []);
+
   const handleProductImageUpload = useCallback((file: File) => {
     // useEffect will handle cleaning up the previous blob URL
     setError(null);
@@ -89,30 +78,20 @@ const App: React.FC = () => {
         setProductImageFile(file);
         setSelectedProduct(product);
         // Clear generation-related state when changing jewelry
-        setPersistedOrbPosition(null);
-        setDebugImageUrl(null);
-        setDebugPrompt(null);
-        setGeneratedSceneUrlForDownload(null);
-        setJewelryScale(1);
-        setLastDropRelativePosition(null);
+        resetGenerationState();
     } catch(err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Could not load the jewelry image. Details: ${errorMessage}`);
       console.error(err);
     }
-  }, []);
+  }, [resetGenerationState]);
 
   const handleSceneImageUpload = useCallback((file: File) => {
     setSceneImage(file);
     setOriginalSceneImage(file);
     // Clear generation-related state when changing scene
-    setPersistedOrbPosition(null);
-    setDebugImageUrl(null);
-    setDebugPrompt(null);
-    setGeneratedSceneUrlForDownload(null);
-    setJewelryScale(1);
-    setLastDropRelativePosition(null);
-  }, []);
+    resetGenerationState();
+  }, [resetGenerationState]);
 
   // Hidden input change handlers (for Change buttons)
   const handleProductFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,37 +147,22 @@ const App: React.FC = () => {
     setSceneImage(null);
     setError(null);
     setIsLoading(false);
-    setPersistedOrbPosition(null);
-    setDebugImageUrl(null);
-    setDebugPrompt(null);
-    setGeneratedSceneUrlForDownload(null);
+    resetGenerationState();
     setOriginalSceneImage(null);
-    setJewelryScale(1);
-    setLastDropRelativePosition(null);
-  }, []);
+  }, [resetGenerationState]);
 
   const handleChangeProduct = useCallback(() => {
     // Let useEffect handle URL revocation
     setSelectedProduct(null);
     setProductImageFile(null);
-    setPersistedOrbPosition(null);
-    setDebugImageUrl(null);
-    setDebugPrompt(null);
-    setGeneratedSceneUrlForDownload(null);
-    setJewelryScale(1);
-    setLastDropRelativePosition(null);
-  }, []);
+    resetGenerationState();
+  }, [resetGenerationState]);
   
   const handleChangeScene = useCallback(() => {
     setSceneImage(null);
     setOriginalSceneImage(null);
-    setPersistedOrbPosition(null);
-    setDebugImageUrl(null);
-    setDebugPrompt(null);
-    setGeneratedSceneUrlForDownload(null);
-    setJewelryScale(1);
-    setLastDropRelativePosition(null);
-  }, []);
+    resetGenerationState();
+  }, [resetGenerationState]);
 
   const handleAdjustScale = useCallback(async (delta: number) => {
     if (!productImageFile || !originalSceneImage || !selectedProduct || !lastDropRelativePosition) return;
@@ -350,18 +314,7 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (error) {
-       return (
-           <div className="text-center animate-fade-in bg-red-50 border border-red-200 p-8 rounded-lg max-w-2xl mx-auto">
-            <h2 className="text-3xl font-extrabold mb-4 text-red-800">An Error Occurred</h2>
-            <p className="text-lg text-red-700 mb-6">{error}</p>
-            <button
-                onClick={handleReset}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors"
-              >
-                Try Again
-            </button>
-          </div>
-        );
+      return <ErrorState message={error} onReset={handleReset} />;
     }
     
     if (!productImageFile || !sceneImage) {
