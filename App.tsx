@@ -87,37 +87,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleInstantStart = useCallback(async () => {
-    setError(null);
-    try {
-      // Fetch the default images
-      const [objectResponse, sceneResponse] = await Promise.all([
-        fetch('/assets/object.jpeg'),
-        fetch('/assets/scene.jpeg')
-      ]);
-
-      if (!objectResponse.ok || !sceneResponse.ok) {
-        throw new Error('Failed to load default images');
-      }
-
-      // Convert to blobs then to File objects
-      const [objectBlob, sceneBlob] = await Promise.all([
-        objectResponse.blob(),
-        sceneResponse.blob()
-      ]);
-
-      const objectFile = new File([objectBlob], 'object.jpeg', { type: 'image/jpeg' });
-      const sceneFile = new File([sceneBlob], 'scene.jpeg', { type: 'image/jpeg' });
-
-      // Update state with the new files
-      setSceneImage(sceneFile);
-      handleProductImageUpload(objectFile);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(`Could not load default images. Details: ${errorMessage}`);
-      console.error(err);
-    }
-  }, [handleProductImageUpload]);
+  // Instant Start feature removed
 
   const handleProductDrop = useCallback(async (position: {x: number, y: number}, relativePosition: { xPercent: number; yPercent: number; }) => {
     if (!productImageFile || !sceneImage || !selectedProduct) {
@@ -342,16 +312,6 @@ const App: React.FC = () => {
           <div className="text-center mt-10 min-h-[4rem] flex flex-col justify-center items-center">
             <p className="text-zinc-500 animate-fade-in">
               Upload a jewelry photo and a scene photo to begin.
-            </p>
-            <p className="text-zinc-500 animate-fade-in mt-2">
-              Or click{' '}
-              <button
-                onClick={handleInstantStart}
-                className="font-bold text-blue-600 hover:text-blue-800 underline transition-colors"
-              >
-                here
-              </button>
-              {' '}for an instant start.
             </p>
           </div>
         </div>
