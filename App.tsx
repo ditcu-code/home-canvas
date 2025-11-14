@@ -36,7 +36,7 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
 }
 
 const loadingMessages = [
-    "Analyzing your product...",
+    "Analyzing your jewelry...",
     "Surveying the scene...",
     "Describing placement location with AI...",
     "Crafting the perfect composition prompt...",
@@ -82,7 +82,7 @@ const App: React.FC = () => {
         setSelectedProduct(product);
     } catch(err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(`Could not load the product image. Details: ${errorMessage}`);
+      setError(`Could not load the jewelry image. Details: ${errorMessage}`);
       console.error(err);
     }
   }, []);
@@ -323,7 +323,7 @@ const App: React.FC = () => {
         <div className="w-full max-w-6xl mx-auto animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <div className="flex flex-col">
-              <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Product</h2>
+              <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Upload Jewelry</h2>
               <ImageUploader 
                 id="product-uploader"
                 onFileSelect={handleProductImageUpload}
@@ -341,7 +341,7 @@ const App: React.FC = () => {
           </div>
           <div className="text-center mt-10 min-h-[4rem] flex flex-col justify-center items-center">
             <p className="text-zinc-500 animate-fade-in">
-              Upload a product image and a scene image to begin.
+              Upload a jewelry photo and a scene photo to begin.
             </p>
             <p className="text-zinc-500 animate-fade-in mt-2">
               Or click{' '}
@@ -361,9 +361,9 @@ const App: React.FC = () => {
     return (
       <div className="w-full max-w-7xl mx-auto animate-fade-in">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {/* Product Column */}
+          {/* Jewelry Column */}
           <div className="md:col-span-1 flex flex-col">
-            <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Product</h2>
+            <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Jewelry</h2>
             <div className="flex-grow flex items-center justify-center">
               <div 
                   draggable="true" 
@@ -383,7 +383,7 @@ const App: React.FC = () => {
                     onClick={handleChangeProduct}
                     className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
                 >
-                    Change Product
+                    Change Jewelry
                 </button>
                </div>
             </div>
@@ -430,7 +430,7 @@ const App: React.FC = () => {
              </div>
            ) : (
              <p className="text-zinc-500 animate-fade-in">
-                Drag the product onto a location in the scene, or simply click where you want it.
+                Drag the jewelry onto a location in the scene, or simply click where you want it.
              </p>
            )}
         </div>

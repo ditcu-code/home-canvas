@@ -52,7 +52,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onFi
           <CloseIcon />
         </button>
         <div className="text-center">
-          <h2 className="text-2xl font-extrabold mb-4 text-zinc-800">Add Your Own Product</h2>
+          <h2 className="text-2xl font-extrabold mb-4 text-zinc-800">Add Your Own Jewelry</h2>
         </div>
         <ImageUploader id="custom-product-uploader" onFileSelect={onFileSelect} imageUrl={null} />
       </div>
