@@ -9,23 +9,17 @@ import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
 import { Product } from '@/types';
 import Header from '@/components/Header';
-import Button from '@/components/Button';
-import ImageUploader from '@/components/ImageUploader';
-import ObjectCard from '@/components/ObjectCard';
 import Spinner from '@/components/Spinner';
 import DebugModal from '@/components/DebugModal';
 import TouchGhost from '@/components/TouchGhost';
 import ErrorState from '@/components/ErrorState';
 import UploadView from '@/components/UploadView';
-import ControlsBar from '@/components/ControlsBar';
+import WorkspaceView from '@/components/WorkspaceView';
 import { useRotatingMessages } from '@/hooks/useRotatingMessages';
 import { useObjectUrlCleanup } from '@/hooks/useObjectUrlCleanup';
 import { useTouchDnD } from '@/hooks/useTouchDnD';
 
-// Pre-load a transparent image to use for hiding the default drag ghost.
-// This prevents a race condition on the first drag.
-const transparentDragImage = new Image();
-transparentDragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+// Drag ghost image moved to constants/drag.ts and used in WorkspaceView
 
 // Utilities and constants moved to dedicated modules
 
@@ -234,73 +228,41 @@ const App: React.FC = () => {
 
     return (
       <div className="w-full max-w-7xl mx-auto animate-fade-in">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {/* Jewelry Column */}
-          <div className="md:col-span-1 flex flex-col">
-            <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Jewelry</h2>
-            <div className="flex-grow flex items-center justify-center">
-              <div 
-                  draggable="true" 
-                  onDragStart={(e) => {
-                      e.dataTransfer.effectAllowed = 'move';
-                      e.dataTransfer.setDragImage(transparentDragImage, 0, 0);
-                  }}
-                  onTouchStart={touch.handleTouchStart}
-                  className="cursor-move w-full max-w-xs"
-              >
-                  <ObjectCard product={selectedProduct!} isSelected={true} />
-              </div>
-            </div>
-            <div className="text-center mt-4">
-               <div className="h-5 flex items-center justify-center">
-                <Button variant="link" size="sm" onClick={() => productFileInputRef.current?.click()}>
-                  Change Jewelry
-                </Button>
-               </div>
-            </div>
-          </div>
-          {/* Scene Column */}
-          <div className="md:col-span-2 flex flex-col">
-            <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Scene</h2>
-            <div className="flex-grow flex items-center justify-center">
-              <ImageUploader 
-                  ref={sceneImgRef}
-                  id="scene-uploader" 
-                  onFileSelect={handleSceneImageUpload} 
-                  imageUrl={sceneImageUrl}
-                  isDropZone={!!sceneImage && !isLoading}
-                  onProductDrop={handleProductDrop}
-                  persistedOrbPosition={persistedOrbPosition}
-                  showDebugButton={!!debugImageUrl && !isLoading}
-                  onDebugClick={() => setIsDebugModalOpen(true)}
-                  showDownloadButton={!!generatedSceneUrlForDownload && !isLoading}
-                  downloadUrl={generatedSceneUrlForDownload}
-                  isTouchHovering={touch.isHoveringDropZone}
-                  touchOrbPosition={touch.touchOrbPosition}
-                  openDialogRef={sceneUploaderOpenRef}
-              />
-            </div>
-            <ControlsBar
-              canAdjust={!!(generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage)}
-              onAdjustScale={handleAdjustScale}
-              canChangeScene={!!(sceneImage && !isLoading)}
-              onChangeScene={() => sceneUploaderOpenRef.current?.()}
-              canReset={!!(productImageFile && sceneImage && !isLoading)}
-              onReset={handleReset}
-            />
-          </div>
-        </div>
+        <WorkspaceView
+          selectedProduct={selectedProduct!}
+          onChangeProduct={() => productFileInputRef.current?.click()}
+          onTouchStart={touch.handleTouchStart}
+          sceneImgRef={sceneImgRef}
+          sceneImageUrl={sceneImageUrl!}
+          isLoading={isLoading}
+          onSceneFileSelect={handleSceneImageUpload}
+          onProductDrop={handleProductDrop}
+          persistedOrbPosition={persistedOrbPosition}
+          showDebugButton={!!debugImageUrl && !isLoading}
+          onDebugClick={() => setIsDebugModalOpen(true)}
+          showDownloadButton={!!generatedSceneUrlForDownload && !isLoading}
+          downloadUrl={generatedSceneUrlForDownload}
+          isTouchHovering={touch.isHoveringDropZone}
+          touchOrbPosition={touch.touchOrbPosition}
+          openSceneDialogRef={sceneUploaderOpenRef}
+          canAdjust={!!(generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage)}
+          onAdjustScale={handleAdjustScale}
+          canChangeScene={!!(sceneImage && !isLoading)}
+          onChangeScene={() => sceneUploaderOpenRef.current?.()}
+          canReset={!!(productImageFile && sceneImage && !isLoading)}
+          onReset={handleReset}
+        />
         <div className="text-center mt-10 min-h-[8rem] flex flex-col justify-center items-center">
-           {isLoading ? (
-             <div className="animate-fade-in">
-                <Spinner />
-                <p className="text-xl mt-4 text-zinc-600 transition-opacity duration-500">{loadingMessages[loadingMessageIndex]}</p>
-             </div>
-           ) : (
-             <p className="text-zinc-500 animate-fade-in">
-                Drag the jewelry onto a location in the scene, or simply click where you want it.
-             </p>
-           )}
+          {isLoading ? (
+            <div className="animate-fade-in">
+               <Spinner />
+               <p className="text-xl mt-4 text-zinc-600 transition-opacity duration-500">{loadingMessages[loadingMessageIndex]}</p>
+            </div>
+          ) : (
+            <p className="text-zinc-500 animate-fade-in">
+               Drag the jewelry onto a location in the scene, or simply click where you want it.
+            </p>
+          )}
         </div>
       </div>
     );
