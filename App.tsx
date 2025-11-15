@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { generateCompositeImage } from '@/services/geminiService';
 import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
@@ -202,6 +202,79 @@ const App: React.FC = () => {
   // Effects above are handled by hooks now
 
   // Touch DnD removed; tap (click) on scene places the item
+
+  // Handle paste (Cmd+V) of images from the clipboard.
+  // If both uploaders are empty, prioritize filling the jewelry first.
+  useEffect(() => {
+    const isTypingInEditable = (el: Element | null): boolean => {
+      if (!el) return false;
+      const tag = (el as HTMLElement).tagName?.toLowerCase();
+      const editable = (el as HTMLElement).isContentEditable;
+      return (
+        editable ||
+        tag === 'input' ||
+        tag === 'textarea' ||
+        (tag === 'div' && (el as HTMLElement).getAttribute('role') === 'textbox')
+      );
+    };
+
+    const onPaste = (e: ClipboardEvent) => {
+      // Avoid interfering with typing/pasting into inputs
+      const active = document.activeElement;
+      if (isTypingInEditable(active)) return;
+
+      const cd = e.clipboardData;
+      if (!cd) return;
+
+      let pastedFile: File | null = null;
+
+      // Prefer items API for better type filtering
+      if (cd.items && cd.items.length > 0) {
+        for (const item of Array.from(cd.items)) {
+          if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const f = item.getAsFile();
+            if (f) {
+              pastedFile = f;
+              break;
+            }
+          }
+        }
+      }
+
+      // Fallback to files list
+      if (!pastedFile && cd.files && cd.files.length > 0) {
+        const candidate = cd.files[0];
+        if (candidate && candidate.type.startsWith('image/')) {
+          pastedFile = candidate;
+        }
+      }
+
+      if (!pastedFile) return;
+
+      // Decide where to place the pasted image
+      const jewelryEmpty = !productImageFile;
+      const sceneEmpty = !sceneImage;
+
+      if (jewelryEmpty && sceneEmpty) {
+        handleProductImageUpload(pastedFile);
+        return;
+      }
+
+      if (jewelryEmpty) {
+        handleProductImageUpload(pastedFile);
+        return;
+      }
+
+      if (sceneEmpty) {
+        handleSceneImageUpload(pastedFile);
+        return;
+      }
+      // If both are already set, do nothing to avoid accidental replacement
+    };
+
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, [productImageFile, sceneImage, handleProductImageUpload, handleSceneImageUpload]);
 
   const renderContent = () => {
     if (error) {
