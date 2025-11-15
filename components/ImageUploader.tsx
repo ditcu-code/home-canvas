@@ -5,7 +5,7 @@
 
 import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect, MutableRefObject } from 'react';
 import Button from '@/components/Button';
-import { UploadIcon, DownloadIcon, WarningIcon } from '@/components/SVGIcon';
+import { UploadIcon, DownloadIcon, WarningIcon, RetryIcon } from '@/components/SVGIcon';
 import { computeRelativePositionFromPoint } from '@/services/positioning';
 
 interface ImageUploaderProps {
@@ -216,7 +216,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
                     onClick={(e) => { e.stopPropagation(); onRetryClick(); }}
                     ariaLabel="Retry generation"
                   >
-                    Retry
+                    <RetryIcon className="h-4 w-4" />
                   </Button>
                 )}
                 {showDebugButton && onDebugClick && (
