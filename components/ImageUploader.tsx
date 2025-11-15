@@ -5,6 +5,7 @@
 
 import React, { useCallback, useRef, useState, useImperativeHandle, forwardRef, useEffect, MutableRefObject } from 'react';
 import Button from '@/components/Button';
+import { UploadIcon, DownloadIcon, WarningIcon } from '@/components/SVGIcon';
 import { computeRelativePositionFromPoint } from '@/services/positioning';
 
 interface ImageUploaderProps {
@@ -25,24 +26,6 @@ interface ImageUploaderProps {
   downloadUrl?: string | null;
   openDialogRef?: MutableRefObject<(() => void) | null>;
 }
-
-const UploadIcon: React.FC = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-zinc-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-    </svg>
-);
-
-const DownloadIcon: React.FC<{className?: string}> = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-4 w-4"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-    </svg>
-);
-
-const WarningIcon: React.FC = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-    </svg>
-);
 
 
 const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showGenerateButton = false, onGenerateClick, showRetryButton = false, onRetryClick, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, openDialogRef }, ref) => {

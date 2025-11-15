@@ -7,24 +7,13 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Product } from '../types';
 import ObjectCard from './ObjectCard';
 import Button from '@/components/Button';
+import { ArrowLeftIcon, ArrowRightIcon } from '@/components/SVGIcon';
 
 interface ProductSelectorProps {
     products: Product[];
     onSelect: (product: Product) => void;
     onAddOwnProductClick: () => void;
 }
-
-const ArrowLeftIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-);
-
-const ArrowRightIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-);
 
 const ProductSelector: React.FC<ProductSelectorProps> = ({ products, onSelect, onAddOwnProductClick }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
