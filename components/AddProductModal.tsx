@@ -1,45 +1,41 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
-*/
-import React from 'react';
-import ImageUploader from './ImageUploader';
-import { CloseIcon } from '@/components/SVGIcon';
+import { CloseIcon } from "@/components/SVGIcon"
+import React from "react"
+import ImageUploader from "./ImageUploader"
 
 interface AddProductModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onFileSelect: (file: File) => void;
+  isOpen: boolean
+  onClose: () => void
+  onFileSelect: (file: File) => void
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onFileSelect }) => {
   if (!isOpen) {
-    return null;
+    return null
   }
 
   const handleModalContentClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-  
+    e.stopPropagation()
+  }
+
   const handleFileUploaded = (file: File) => {
-      onFileSelect(file);
-      // No need to call onClose here, as the parent component will handle it 
-      // in the onFileSelect callback for better state flow control.
+    onFileSelect(file)
+    // No need to call onClose here, as the parent component will handle it
+    // in the onFileSelect callback for better state flow control.
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fade-in"
       onClick={onClose}
       aria-modal="true"
       role="dialog"
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 md:p-8 relative transform transition-all"
         onClick={handleModalContentClick}
         role="document"
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-800 transition-colors"
           aria-label="Close modal"
@@ -52,7 +48,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onFi
         <ImageUploader id="custom-product-uploader" onFileSelect={onFileSelect} imageUrl={null} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddProductModal;
+export default AddProductModal

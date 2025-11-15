@@ -1,22 +1,17 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { MutableRefObject } from 'react';
-import Button from '@/components/Button';
-import ImageUploader from '@/components/ImageUploader';
+import Button from "@/components/Button"
+import ImageUploader from "@/components/ImageUploader"
+import React, { MutableRefObject } from "react"
 
 interface UploadViewProps {
-  productImageUrl: string | null;
-  sceneImageUrl: string | null;
-  onUploadProduct: (file: File) => void;
-  onUploadScene: (file: File) => void;
-  onChangeProduct: () => void;
-  onChangeScene: () => void;
-  canChangeProduct: boolean;
-  canChangeScene: boolean;
-  openSceneDialogRef?: MutableRefObject<(() => void) | null>;
+  productImageUrl: string | null
+  sceneImageUrl: string | null
+  onUploadProduct: (file: File) => void
+  onUploadScene: (file: File) => void
+  onChangeProduct: () => void
+  onChangeScene: () => void
+  canChangeProduct: boolean
+  canChangeScene: boolean
+  openSceneDialogRef?: MutableRefObject<(() => void) | null>
 }
 
 const UploadView: React.FC<UploadViewProps> = ({
@@ -70,9 +65,8 @@ const UploadView: React.FC<UploadViewProps> = ({
           )}
         </div>
       </div>
-      
     </div>
-  );
-};
+  )
+}
 
-export default UploadView;
+export default UploadView

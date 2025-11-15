@@ -1,8 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
-*/
-import React from 'react';
+import React from "react"
 
 const Header: React.FC = () => {
   return (
@@ -16,7 +12,7 @@ const Header: React.FC = () => {
         Upload jewelry and a scene, then click to place it. Gemini composes a photorealistic result.
       </p>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

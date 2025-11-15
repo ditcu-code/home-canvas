@@ -1,45 +1,40 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { MutableRefObject } from 'react';
-import { Product } from '@/types';
-import Button from '@/components/Button';
-import ObjectCard from '@/components/ObjectCard';
-import ImageUploader from '@/components/ImageUploader';
-import ControlsBar from '@/components/ControlsBar';
+import Button from "@/components/Button"
+import ControlsBar from "@/components/ControlsBar"
+import ImageUploader from "@/components/ImageUploader"
+import ObjectCard from "@/components/ObjectCard"
+import { Product } from "@/types"
+import React, { MutableRefObject } from "react"
 // Drag-and-drop removed; click-to-place only
 
 interface WorkspaceViewProps {
-  selectedProduct: Product;
-  onChangeProduct: () => void;
-  sceneImgRef: React.RefObject<HTMLImageElement>;
-  sceneImageUrl: string;
-  isLoading: boolean;
-  onSceneFileSelect: (file: File) => void;
+  selectedProduct: Product
+  onChangeProduct: () => void
+  sceneImgRef: React.RefObject<HTMLImageElement>
+  sceneImageUrl: string
+  isLoading: boolean
+  onSceneFileSelect: (file: File) => void
   onProductDrop: (
     position: { x: number; y: number },
-    relative: { xPercent: number; yPercent: number }
-  ) => void;
-  persistedOrbPosition: { x: number; y: number } | null;
-  showGenerateButton: boolean;
-  onGenerateClick: () => void;
-  showRetryButton: boolean;
-  onRetryClick: () => void;
-  showDebugButton: boolean;
-  onDebugClick: () => void;
-  showDownloadButton: boolean;
-  downloadUrl: string | null;
-  openSceneDialogRef: MutableRefObject<(() => void) | null>;
+    relative: { xPercent: number; yPercent: number },
+  ) => void
+  persistedOrbPosition: { x: number; y: number } | null
+  showGenerateButton: boolean
+  onGenerateClick: () => void
+  showRetryButton: boolean
+  onRetryClick: () => void
+  showDebugButton: boolean
+  onDebugClick: () => void
+  showDownloadButton: boolean
+  downloadUrl: string | null
+  openSceneDialogRef: MutableRefObject<(() => void) | null>
 
   // Controls
-  canAdjust: boolean;
-  onAdjustScale: (delta: number) => void;
-  canChangeScene: boolean;
-  onChangeScene: () => void;
-  canReset: boolean;
-  onReset: () => void;
+  canAdjust: boolean
+  onAdjustScale: (delta: number) => void
+  canChangeScene: boolean
+  onChangeScene: () => void
+  canReset: boolean
+  onReset: () => void
 }
 
 const WorkspaceView: React.FC<WorkspaceViewProps> = ({
@@ -119,7 +114,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
         />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default WorkspaceView;
+export default WorkspaceView
