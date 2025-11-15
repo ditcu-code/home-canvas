@@ -107,18 +107,27 @@ const App: React.FC = () => {
       setError('An unexpected error occurred. Please try again.');
       return;
     }
+    // Only record the desired placement; generation happens on explicit user action.
     setPersistedOrbPosition(position);
     setLastDropRelativePosition(relativePosition);
+    setError(null);
+  }, [productImageFile, sceneImage, selectedProduct]);
+
+  const handleGenerate = useCallback(async () => {
+    if (!productImageFile || !sceneImage || !selectedProduct || !lastDropRelativePosition) {
+      setError('Please select a location in the scene first.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const baseScene = originalSceneImage || sceneImage;
       const { finalImageUrl, debugImageUrl, finalPrompt } = await generateCompositeImage(
-        productImageFile, 
+        productImageFile,
         selectedProduct.name,
         baseScene,
         baseScene.name,
-        relativePosition,
+        lastDropRelativePosition,
         jewelryScale
       );
       setGeneratedSceneUrlForDownload(finalImageUrl);
@@ -126,17 +135,16 @@ const App: React.FC = () => {
       setDebugPrompt(finalPrompt);
       const newSceneFile = dataURLtoFile(finalImageUrl, `generated-scene-${Date.now()}.jpeg`);
       setSceneImage(newSceneFile);
-
-    } catch (err)
- {
+    } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(`Failed to generate the image. ${errorMessage}`);
       console.error(err);
     } finally {
       setIsLoading(false);
+      // Clear placement orb after generation
       setPersistedOrbPosition(null);
     }
-  }, [productImageFile, sceneImage, selectedProduct, originalSceneImage, jewelryScale]);
+  }, [productImageFile, sceneImage, selectedProduct, originalSceneImage, jewelryScale, lastDropRelativePosition]);
 
 
   const handleReset = useCallback(() => {
@@ -238,9 +246,11 @@ const App: React.FC = () => {
           onSceneFileSelect={handleSceneImageUpload}
           onProductDrop={handleProductDrop}
           persistedOrbPosition={persistedOrbPosition}
-          showDebugButton={!!debugImageUrl && !isLoading}
+          showGenerateButton={!!persistedOrbPosition && !isLoading}
+          onGenerateClick={handleGenerate}
+          showDebugButton={!!debugImageUrl && !isLoading && !persistedOrbPosition}
           onDebugClick={() => setIsDebugModalOpen(true)}
-          showDownloadButton={!!generatedSceneUrlForDownload && !isLoading}
+          showDownloadButton={!!generatedSceneUrlForDownload && !isLoading && !persistedOrbPosition}
           downloadUrl={generatedSceneUrlForDownload}
           isTouchHovering={touch.isHoveringDropZone}
           touchOrbPosition={touch.touchOrbPosition}
@@ -260,7 +270,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <p className="text-zinc-500 animate-fade-in">
-               Drag the jewelry onto a location in the scene, or simply click where you want it.
+               Drag or click to select a location in the scene, then press Generate.
             </p>
           )}
         </div>

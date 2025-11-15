@@ -15,6 +15,8 @@ interface ImageUploaderProps {
   isDropZone?: boolean;
   onProductDrop?: (position: {x: number, y: number}, relativePosition: { xPercent: number; yPercent: number; }) => void;
   persistedOrbPosition?: { x: number; y: number } | null;
+  showGenerateButton?: boolean;
+  onGenerateClick?: () => void;
   showDebugButton?: boolean;
   onDebugClick?: () => void;
   showDownloadButton?: boolean;
@@ -43,7 +45,7 @@ const WarningIcon: React.FC = () => (
 );
 
 
-const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, isTouchHovering = false, touchOrbPosition = null, openDialogRef }, ref) => {
+const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showGenerateButton = false, onGenerateClick, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, isTouchHovering = false, touchOrbPosition = null, openDialogRef }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -205,8 +207,18 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
                     }}
                 ></div>
             )}
-            { (showDebugButton || showDownloadButton) && (
+            { (showGenerateButton || showDebugButton || showDownloadButton) && (
               <div className="absolute bottom-2 right-2 flex items-center gap-2 z-20">
+                {showGenerateButton && onGenerateClick && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); onGenerateClick(); }}
+                    ariaLabel="Generate composed image"
+                  >
+                    Generate
+                  </Button>
+                )}
                 {showDebugButton && onDebugClick && (
                   <Button
                     variant="ghost"

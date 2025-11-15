@@ -27,6 +27,7 @@
 
 ## Commit & Pull Request Guidelines
 - Prefer Conventional Commits: `feat: add product selector`, `fix: handle drag ghost`.
+- Commit messages must not exceed 150 characters.
 - Write imperative, concise subjects; include scope when helpful.
 - PRs should include: summary/purpose, before/after screenshots for UI, steps to verify, and linked issues.
 - Keep PRs focused; avoid unrelated refactors or reformatting.
@@ -40,4 +41,3 @@
 - Follow the conventions above and keep changes minimal and localized.
 - Do not reformat untouched files; prefer small, reviewable patches.
 - Use the `@` alias for clearer cross‑folder imports when appropriate.
-

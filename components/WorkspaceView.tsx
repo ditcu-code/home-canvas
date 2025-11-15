@@ -25,6 +25,8 @@ interface WorkspaceViewProps {
     relative: { xPercent: number; yPercent: number }
   ) => void;
   persistedOrbPosition: { x: number; y: number } | null;
+  showGenerateButton: boolean;
+  onGenerateClick: () => void;
   showDebugButton: boolean;
   onDebugClick: () => void;
   showDownloadButton: boolean;
@@ -52,6 +54,8 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onSceneFileSelect,
   onProductDrop,
   persistedOrbPosition,
+  showGenerateButton,
+  onGenerateClick,
   showDebugButton,
   onDebugClick,
   showDownloadButton,
@@ -105,6 +109,8 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             isDropZone={!!sceneImageUrl && !isLoading}
             onProductDrop={onProductDrop}
             persistedOrbPosition={persistedOrbPosition}
+            showGenerateButton={showGenerateButton}
+            onGenerateClick={onGenerateClick}
             showDebugButton={showDebugButton}
             onDebugClick={onDebugClick}
             showDownloadButton={showDownloadButton}
@@ -128,4 +134,3 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
 };
 
 export default WorkspaceView;
-
