@@ -75,17 +75,3 @@ export const WarningIcon: React.FC<IconProps> = ({ className }) => (
     />
   </svg>
 );
-
-export const RetryIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={className || 'h-4 w-4'}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v6h6M20 20v-6h-6" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 19A9 9 0 1019 5" />
-  </svg>
-);

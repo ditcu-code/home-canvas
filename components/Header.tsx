@@ -9,7 +9,7 @@ const Header: React.FC = () => {
         </h1>
       </div>
       <p className="mt-2 text-sm md:text-base text-[hsl(var(--text-muted))] max-w-3xl mx-auto">
-        Upload jewelry and a scene, then click to place it. Gemini composes a photorealistic result.
+        Upload jewelry and a scene, then click to place it. AI composes a photorealistic result.
       </p>
     </header>
   )

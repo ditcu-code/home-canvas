@@ -1,5 +1,5 @@
 import Button from "@/components/Button"
-import { DownloadIcon, RetryIcon, UploadIcon, WarningIcon } from "@/components/SVGIcon"
+import { DownloadIcon, UploadIcon, WarningIcon } from "@/components/SVGIcon"
 import { computeRelativePositionFromPoint } from "@/services/positioning"
 import React, {
   forwardRef,
@@ -254,7 +254,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
                       }}
                       ariaLabel="Retry generation"
                     >
-                      <RetryIcon className="h-4 w-4" />
+                      Retry
                     </Button>
                   )}
                   {showDebugButton && onDebugClick && (
