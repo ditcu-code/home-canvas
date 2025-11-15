@@ -49,6 +49,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [fileTypeError, setFileTypeError] = useState<string | null>(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // Expose the internal imgRef to the parent component via the forwarded ref
   useImperativeHandle(ref, () => imgRef.current as HTMLImageElement);
@@ -83,6 +84,64 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
     }
   };
   
+  // Drag-and-drop file support for uploaders (not for placement drop zones)
+  const acceptsFileDrop = !isDropZone;
+
+  const extractImageFileFromDataTransfer = (dt: DataTransfer): File | null => {
+    // Prefer DataTransferItem list
+    if (dt.items && dt.items.length > 0) {
+      for (const item of Array.from(dt.items)) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const f = item.getAsFile();
+          if (f) return f;
+        }
+      }
+    }
+    // Fallback to files list
+    if (dt.files && dt.files.length > 0) {
+      const f = dt.files[0];
+      if (f && f.type.startsWith('image/')) return f;
+    }
+    return null;
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!acceptsFileDrop) return;
+    // Always prevent default so the element becomes a valid drop target
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    setIsDraggingOver(true);
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!acceptsFileDrop) return;
+    e.preventDefault();
+    setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!acceptsFileDrop) return;
+    // Ensure we're leaving the container, not moving between children
+    if ((e.currentTarget as Node).contains(e.relatedTarget as Node)) return;
+    setIsDraggingOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!acceptsFileDrop) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    const file = extractImageFileFromDataTransfer(e.dataTransfer);
+    if (!file) return;
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      setFileTypeError('For best results, please use PNG, JPG, or JPEG formats.');
+    } else {
+      setFileTypeError(null);
+    }
+    onFileSelect(file);
+  };
+  
   // A shared handler for both click and drop placements.
   const handlePlacement = useCallback((clientX: number, clientY: number, currentTarget: HTMLDivElement) => {
     const img = imgRef.current;
@@ -106,10 +165,11 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
 
   const uploaderClasses = [
     'w-full aspect-video rounded-xl bg-white/70 backdrop-blur-sm border border-zinc-200 shadow-sm',
-    'transition-all duration-300 relative overflow-hidden ring-1 ring-inset ring-transparent',
+    'transition-all duration-300 relative overflow-hidden ring-1 ring-inset',
     isDropZone
       ? 'border-zinc-300 cursor-crosshair hover:ring-blue-400/40 hover:border-blue-300'
       : 'border-zinc-200 cursor-pointer hover:ring-blue-400/40 hover:border-blue-300',
+    isDraggingOver && acceptsFileDrop ? 'ring-blue-400/60 border-blue-400 bg-blue-50/40' : 'ring-transparent',
     !isActionable ? 'cursor-default' : ''
   ].join(' ');
 
@@ -119,6 +179,10 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
       <div
         className={uploaderClasses}
         onClick={isActionable ? handleClick : undefined}
+        onDragOver={acceptsFileDrop ? handleDragOver : undefined}
+        onDragEnter={acceptsFileDrop ? handleDragEnter : undefined}
+        onDragLeave={acceptsFileDrop ? handleDragLeave : undefined}
+        onDrop={acceptsFileDrop ? handleDrop : undefined}
         data-dropzone-id={id}
       >
         <input
