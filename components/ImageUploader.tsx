@@ -1,6 +1,6 @@
-import Button from "@/components/Button"
-import { DownloadIcon, RetryIcon, UploadIcon, WarningIcon } from "@/components/SVGIcon"
-import { computeRelativePositionFromPoint } from "@/services/positioning"
+import Button from '@/components/Button'
+import { DownloadIcon, RetryIcon, UploadIcon, WarningIcon } from '@/components/SVGIcon'
+import { computeRelativePositionFromPoint } from '@/services/positioning'
 import React, {
   forwardRef,
   MutableRefObject,
@@ -176,16 +176,17 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
     const isActionable = isDropZone || !imageUrl
 
     const uploaderClasses = [
-      "w-full aspect-video rounded-xl bg-white/70 backdrop-blur-sm border border-zinc-200 shadow-sm",
-      "transition-all duration-300 relative overflow-hidden ring-1 ring-inset",
+      'w-full aspect-video rounded-xl backdrop-blur-sm border shadow-sm',
+      'bg-[hsl(var(--surface))] border-[hsl(var(--border))]',
+      'transition-all duration-300 relative overflow-hidden ring-1 ring-inset',
       isDropZone
-        ? "border-zinc-300 cursor-crosshair hover:ring-blue-400/40 hover:border-blue-300"
-        : "border-zinc-200 cursor-pointer hover:ring-blue-400/40 hover:border-blue-300",
+        ? 'cursor-crosshair hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]'
+        : 'cursor-pointer hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]',
       isDraggingOver && acceptsFileDrop
-        ? "ring-blue-400/60 border-blue-400 bg-blue-50/40"
-        : "ring-transparent",
-      !isActionable ? "cursor-default" : "",
-    ].join(" ")
+        ? 'ring-[hsl(var(--primary)/0.6)] border-[hsl(var(--primary)/0.6)] bg-[hsl(var(--primary)/0.06)]'
+        : 'ring-transparent',
+      !isActionable ? 'cursor-default' : '',
+    ].join(' ')
 
     return (
       <div className="flex flex-col items-center w-full">
@@ -296,7 +297,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
         </div>
         {fileTypeError && (
           <div
-            className="w-full mt-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center animate-fade-in"
+            className="w-full mt-2 text-sm rounded-lg p-3 flex items-center animate-fade-in alert-warning"
             role="alert"
           >
             <WarningIcon />

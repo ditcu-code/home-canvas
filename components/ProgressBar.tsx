@@ -1,4 +1,4 @@
-import React from "react"
+import React from 'react'
 
 interface ProgressBarProps {
   value: number // 0 - 100
@@ -10,20 +10,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ value, label }) => {
   return (
     <div className="w-full max-w-xl mx-auto">
       <div
-        className="w-full h-4 bg-zinc-200 rounded-full overflow-hidden shadow-inner"
+        className="w-full h-4 rounded-full overflow-hidden shadow-inner progress-track"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={clamped}
-        aria-label={label || "Progress"}
+        aria-label={label || 'Progress'}
       >
         <div
-          className="h-full bg-zinc-800 transition-[width] duration-200 ease-out"
+          className="h-full transition-[width] duration-200 ease-out progress-fill"
           style={{ width: `${clamped}%` }}
         />
       </div>
-      <div className="mt-2 flex items-center justify-between text-sm text-zinc-600">
-        <span>{label || "Working..."}</span>
+      <div className="mt-2 flex items-center justify-between text-sm text-[hsl(var(--text-muted))]">
+        <span>{label || 'Working...'}</span>
         <span>{clamped}%</span>
       </div>
     </div>

@@ -1,7 +1,7 @@
-import React from "react"
+import React from 'react'
 
-type ButtonVariant = "primary" | "ghost" | "link"
-type ButtonSize = "sm" | "md"
+type ButtonVariant = 'primary' | 'ghost' | 'link'
+type ButtonSize = 'sm' | 'md'
 
 export interface ButtonProps {
   children: React.ReactNode
@@ -19,25 +19,28 @@ export interface ButtonProps {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-  ghost: "bg-zinc-100 text-zinc-900 border border-zinc-300 hover:bg-zinc-200 shadow-sm",
+  // Use palette via Tailwind arbitrary colors with CSS variables
+  primary:
+    'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary-hover))] shadow-sm',
+  ghost:
+    'bg-[hsl(var(--surface-2))] text-[hsl(var(--text))] border border-[hsl(var(--border))] hover:bg-[hsl(var(--surface))] shadow-sm',
   // Keep link unpadded but allow size to change text size
-  link: "bg-transparent text-blue-600 hover:text-blue-800 p-0",
+  link: 'bg-transparent text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))] p-0',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "text-sm px-3 py-1.5",
-  md: "text-sm md:text-base px-4 py-2",
+  sm: 'text-sm px-3 py-1.5',
+  md: 'text-sm md:text-base px-4 py-2',
 }
 
 // For link variant we only want to affect text size (no padding)
 const linkTextSizeClasses: Record<ButtonSize, string> = {
-  sm: "text-xs",
-  md: "text-sm",
+  sm: 'text-xs',
+  md: 'text-sm',
 }
 
 const baseClasses =
-  "inline-flex items-center justify-center rounded-md transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none"
+  'inline-flex items-center justify-center rounded-md transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none'
 
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -59,7 +62,7 @@ const Button: React.FC<ButtonProps> = ({
     className,
   ]
     .filter(Boolean)
-    .join(" ")
+    .join(' ')
 
   if (href) {
     return (

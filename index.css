@@ -1,6 +1,60 @@
-/* Global UI refinements */
+/* Global UI refinements + Color Palette */
 :root {
-  --brand-accent: 28 100% 52%; /* orange accent fallback if needed */
+  /* Neutrals */
+  --bg: 30 20% 98%;
+  --surface: 30 20% 96%;
+  --surface-2: 30 14% 92%;
+  --text: 210 15% 15%;
+  --text-muted: 210 8% 45%;
+  --border: 30 10% 84%;
+
+  /* Brand */
+  --primary: 197 70% 40%; /* teal */
+  --primary-hover: 197 70% 34%;
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 16 84% 54%; /* coral */
+  --accent-hover: 16 84% 47%;
+  --accent-foreground: 0 0% 100%;
+
+  /* States */
+  --success: 158 55% 40%;
+  --warning: 35 90% 45%;
+  --danger: 350 75% 45%;
+
+  /* Focus */
+  --focus: var(--primary);
+
+  /* Back-compat alias */
+  --brand-accent: var(--accent);
+}
+
+:root[data-theme='dark'] {
+  --bg: 210 22% 10%;
+  --surface: 210 22% 14%;
+  --surface-2: 210 20% 18%;
+  --text: 30 20% 96%;
+  --text-muted: 210 10% 70%;
+  --border: 210 12% 28%;
+
+  --primary: 197 70% 48%;
+  --primary-hover: 197 70% 42%;
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 16 85% 64%;
+  --accent-hover: 16 85% 58%;
+  --accent-foreground: 0 0% 100%;
+
+  --success: 158 60% 48%;
+  --warning: 35 90% 55%;
+  --danger: 350 80% 60%;
+
+  --focus: var(--primary);
+}
+
+html, body {
+  background-color: hsl(var(--bg));
+  color: hsl(var(--text));
 }
 
 @keyframes fade-in {
@@ -15,9 +69,49 @@
 /* Subtle focus ring utility for keyboard nav */
 .focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 0 3px hsl(var(--focus) / 0.45);
   border-radius: 0.5rem;
 }
 
 /* Fine-tune image smoothing for previews */
 img { image-rendering: auto; }
+
+/* Brand gradient helper for headings */
+.brand-gradient-text {
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--text)) 0%,
+    hsl(var(--text-muted)) 60%,
+    hsl(var(--text-muted)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Muted text utility */
+.text-muted { color: hsl(var(--text-muted)); }
+
+/* ProgressBar helpers */
+.progress-track { background-color: hsl(var(--surface-2)); }
+.progress-fill { background-color: hsl(var(--primary)); }
+
+/* Simple alert helpers */
+.alert-error {
+  background-color: hsl(var(--danger) / 0.1);
+  border: 1px solid hsl(var(--danger) / 0.25);
+  color: hsl(var(--danger));
+}
+.alert-warning {
+  background-color: hsl(var(--warning) / 0.12);
+  border: 1px solid hsl(var(--warning) / 0.28);
+  color: hsl(var(--warning));
+}
+
+/* Drop orb accent (overrides inline style in index.html when present) */
+.drop-orb {
+  box-shadow:
+    0 0 10px hsl(var(--accent) / 0.6),
+    0 0 25px hsl(var(--accent) / 0.45),
+    0 0 50px hsl(var(--primary) / 0.5);
+}

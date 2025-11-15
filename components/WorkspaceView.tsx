@@ -66,7 +66,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
       {/* Jewelry Column */}
       <div className="md:col-span-1 flex flex-col">
-        <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Jewelry</h2>
+        <h2 className="text-2xl font-extrabold text-center mb-5 text-[hsl(var(--text)/0.85)]">Jewelry</h2>
         <div className="flex-grow flex items-center justify-center">
           <div className="w-full max-w-xs">
             <ObjectCard product={selectedProduct} isSelected={true} />
@@ -83,7 +83,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
 
       {/* Scene Column */}
       <div className="md:col-span-2 flex flex-col">
-        <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Scene</h2>
+        <h2 className="text-2xl font-extrabold text-center mb-5 text-[hsl(var(--text)/0.85)]">Scene</h2>
         <div className="flex-grow flex items-center justify-center">
           <ImageUploader
             ref={sceneImgRef}

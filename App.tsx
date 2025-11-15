@@ -374,14 +374,10 @@ const App: React.FC = () => {
           onReset={handleReset}
         />
         <div className="text-center mt-10 min-h-[8rem] flex flex-col justify-center items-center">
-          {isLoading ? (
+          {isLoading && (
             <div className="animate-fade-in w-full">
               <ProgressBar value={progress} label={loadingMessages[loadingMessageIndex]} />
             </div>
-          ) : (
-            <p className="text-zinc-500 animate-fade-in">
-              Click to select a location in the scene, then press Generate.
-            </p>
           )}
         </div>
       </div>
@@ -389,7 +385,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-zinc-800 flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-[hsl(var(--bg))] text-[hsl(var(--text))] flex items-center justify-center p-4 md:p-8">
       <div className="flex flex-col items-center gap-12 w-full">
         <Header />
         <ProgressSteps currentStep={currentStep} steps={steps} />
