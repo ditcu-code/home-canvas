@@ -318,6 +318,15 @@ const App: React.FC = () => {
       )
     }
 
+    // Determine a friendly download filename based on the original scene filename
+    const downloadName = (() => {
+      const orig = originalSceneImage?.name
+      if (!orig) return undefined
+      const dot = orig.lastIndexOf('.')
+      const base = dot > 0 ? orig.slice(0, dot) : orig
+      return `${base} by Adorn.jpeg`
+    })()
+
     return (
       <div className="w-full max-w-7xl mx-auto animate-fade-in">
         <WorkspaceView
@@ -344,6 +353,7 @@ const App: React.FC = () => {
           onDebugClick={() => setIsDebugModalOpen(true)}
           showDownloadButton={!!generatedSceneUrlForDownload && !isLoading && !persistedOrbPosition}
           downloadUrl={generatedSceneUrlForDownload}
+          downloadName={downloadName}
           openSceneDialogRef={sceneUploaderOpenRef}
           canAdjust={
             !!(

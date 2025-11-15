@@ -30,6 +30,7 @@ interface ImageUploaderProps {
   onDebugClick?: () => void
   showDownloadButton?: boolean
   downloadUrl?: string | null
+  downloadName?: string
   openDialogRef?: MutableRefObject<(() => void) | null>
 }
 
@@ -51,6 +52,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
       onDebugClick,
       showDownloadButton,
       downloadUrl,
+      downloadName,
       openDialogRef,
     },
     ref,
@@ -275,7 +277,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
                       variant="primary"
                       size="sm"
                       href={downloadUrl}
-                      download={`jewelry-canvas-creation.jpeg`}
+                      download={downloadName || `adorn-ai-creation.jpeg`}
                       onClick={(e) => e.stopPropagation()}
                       ariaLabel="Download generated image"
                       className="pl-2 pr-3"

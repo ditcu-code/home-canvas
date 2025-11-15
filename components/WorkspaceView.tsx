@@ -26,6 +26,7 @@ interface WorkspaceViewProps {
   onDebugClick: () => void
   showDownloadButton: boolean
   downloadUrl: string | null
+  downloadName?: string
   openSceneDialogRef: MutableRefObject<(() => void) | null>
 
   // Controls
@@ -54,6 +55,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onDebugClick,
   showDownloadButton,
   downloadUrl,
+  downloadName,
   openSceneDialogRef,
   canAdjust,
   onAdjustScale,
@@ -101,6 +103,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             onDebugClick={onDebugClick}
             showDownloadButton={showDownloadButton}
             downloadUrl={downloadUrl}
+            downloadName={downloadName}
             openDialogRef={openSceneDialogRef}
           />
         </div>
