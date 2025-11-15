@@ -259,7 +259,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
             )}
           </>
         ) : (
-          <div className="text-center text-zinc-600 p-6">
+          <div className="flex h-full flex-col items-center justify-center text-center text-zinc-600 p-6">
             <UploadIcon />
             <p className="font-medium">Click to upload or drag & drop</p>
             <p className="text-xs text-zinc-500 mt-1">PNG or JPG, up to ~10MB</p>
