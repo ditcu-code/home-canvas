@@ -25,12 +25,19 @@ export interface ButtonProps {
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm',
   ghost: 'bg-zinc-100 text-zinc-900 border border-zinc-300 hover:bg-zinc-200 shadow-sm',
+  // Keep link unpadded but allow size to change text size
   link: 'bg-transparent text-blue-600 hover:text-blue-800 p-0',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'text-sm px-3 py-1.5',
   md: 'text-sm md:text-base px-4 py-2',
+};
+
+// For link variant we only want to affect text size (no padding)
+const linkTextSizeClasses: Record<ButtonSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
 };
 
 const baseClasses = 'inline-flex items-center justify-center rounded-md transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none';
@@ -48,7 +55,12 @@ const Button: React.FC<ButtonProps> = ({
   rel,
   ariaLabel,
 }) => {
-  const classes = [baseClasses, variantClasses[variant], variant !== 'link' ? sizeClasses[size] : '', className]
+  const classes = [
+    baseClasses,
+    variantClasses[variant],
+    variant === 'link' ? linkTextSizeClasses[size] : sizeClasses[size],
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -76,4 +88,3 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 export default Button;
-
