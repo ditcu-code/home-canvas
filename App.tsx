@@ -248,6 +248,8 @@ const App: React.FC = () => {
           persistedOrbPosition={persistedOrbPosition}
           showGenerateButton={!!persistedOrbPosition && !isLoading}
           onGenerateClick={handleGenerate}
+          showRetryButton={!!(generatedSceneUrlForDownload && lastDropRelativePosition && !isLoading && !persistedOrbPosition)}
+          onRetryClick={handleGenerate}
           showDebugButton={!!debugImageUrl && !isLoading && !persistedOrbPosition}
           onDebugClick={() => setIsDebugModalOpen(true)}
           showDownloadButton={!!generatedSceneUrlForDownload && !isLoading && !persistedOrbPosition}

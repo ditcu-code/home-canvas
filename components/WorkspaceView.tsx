@@ -27,6 +27,8 @@ interface WorkspaceViewProps {
   persistedOrbPosition: { x: number; y: number } | null;
   showGenerateButton: boolean;
   onGenerateClick: () => void;
+  showRetryButton: boolean;
+  onRetryClick: () => void;
   showDebugButton: boolean;
   onDebugClick: () => void;
   showDownloadButton: boolean;
@@ -56,6 +58,8 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   persistedOrbPosition,
   showGenerateButton,
   onGenerateClick,
+  showRetryButton,
+  onRetryClick,
   showDebugButton,
   onDebugClick,
   showDownloadButton,
@@ -111,6 +115,8 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             persistedOrbPosition={persistedOrbPosition}
             showGenerateButton={showGenerateButton}
             onGenerateClick={onGenerateClick}
+            showRetryButton={showRetryButton}
+            onRetryClick={onRetryClick}
             showDebugButton={showDebugButton}
             onDebugClick={onDebugClick}
             showDownloadButton={showDownloadButton}
