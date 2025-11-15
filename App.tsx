@@ -9,6 +9,7 @@ import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
 import { Product } from '@/types';
 import Header from '@/components/Header';
+import ProgressSteps from '@/components/ProgressSteps';
 import ProgressBar from '@/components/ProgressBar';
 import DebugModal from '@/components/DebugModal';
 import ErrorState from '@/components/ErrorState';
@@ -51,6 +52,17 @@ const App: React.FC = () => {
   useObjectUrlCleanup(productImageUrl);
   const loadingMessageIndex = useRotatingMessages(isLoading, loadingMessages, 3000);
   const progress = useSimulatedProgress(isLoading);
+
+  // Progress steps guidance
+  const steps = ['Upload Jewelry', 'Upload Scene', 'Place Jewelry', 'Generate', 'Review & Download'];
+  const currentStep = (() => {
+    if (!productImageFile) return 0; // Upload Jewelry
+    if (!sceneImage) return 1; // Upload Scene
+    if (isLoading) return 3; // Generating
+    if (generatedSceneUrlForDownload && !isLoading) return 4; // Review & Download
+    if (persistedOrbPosition) return 3; // Ready to Generate
+    return 2; // Place Jewelry
+  })();
 
   // Centralized generation-state reset to avoid repetition
   const resetGenerationState = useCallback(() => {
@@ -341,8 +353,9 @@ const App: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-white text-zinc-800 flex items-center justify-center p-4 md:p-8">
-      <div className="flex flex-col items-center gap-8 w-full">
+      <div className="flex flex-col items-center gap-12 w-full">
         <Header />
+        <ProgressSteps currentStep={currentStep} steps={steps} />
         <main className="w-full">
           {renderContent()}
         </main>

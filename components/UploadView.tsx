@@ -70,14 +70,9 @@ const UploadView: React.FC<UploadViewProps> = ({
           )}
         </div>
       </div>
-      <div className="text-center mt-10 min-h-[4rem] flex flex-col justify-center items-center">
-        <p className="text-zinc-500 animate-fade-in">
-          Upload a jewelry photo and a scene photo to begin.
-        </p>
-      </div>
+      
     </div>
   );
 };
 
 export default UploadView;
-
