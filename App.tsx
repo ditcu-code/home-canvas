@@ -9,13 +9,14 @@ import { dataURLtoFile } from '@/services/fileUtils';
 import { loadingMessages } from '@/constants/loadingMessages';
 import { Product } from '@/types';
 import Header from '@/components/Header';
-import Spinner from '@/components/Spinner';
+import ProgressBar from '@/components/ProgressBar';
 import DebugModal from '@/components/DebugModal';
 import TouchGhost from '@/components/TouchGhost';
 import ErrorState from '@/components/ErrorState';
 import UploadView from '@/components/UploadView';
 import WorkspaceView from '@/components/WorkspaceView';
 import { useRotatingMessages } from '@/hooks/useRotatingMessages';
+import { useSimulatedProgress } from '@/hooks/useSimulatedProgress';
 import { useObjectUrlCleanup } from '@/hooks/useObjectUrlCleanup';
 import { useTouchDnD } from '@/hooks/useTouchDnD';
 
@@ -53,6 +54,7 @@ const App: React.FC = () => {
   useObjectUrlCleanup(sceneImageUrl);
   useObjectUrlCleanup(productImageUrl);
   const loadingMessageIndex = useRotatingMessages(isLoading, loadingMessages, 3000);
+  const progress = useSimulatedProgress(isLoading);
 
   // Centralized generation-state reset to avoid repetition
   const resetGenerationState = useCallback(() => {
@@ -266,9 +268,8 @@ const App: React.FC = () => {
         />
         <div className="text-center mt-10 min-h-[8rem] flex flex-col justify-center items-center">
           {isLoading ? (
-            <div className="animate-fade-in">
-               <Spinner />
-               <p className="text-xl mt-4 text-zinc-600 transition-opacity duration-500">{loadingMessages[loadingMessageIndex]}</p>
+            <div className="animate-fade-in w-full">
+               <ProgressBar value={progress} label={loadingMessages[loadingMessageIndex]} />
             </div>
           ) : (
             <p className="text-zinc-500 animate-fade-in">
