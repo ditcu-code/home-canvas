@@ -17,11 +17,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onFi
     e.stopPropagation()
   }
 
-  const handleFileUploaded = (file: File) => {
-    onFileSelect(file)
-    // No need to call onClose here, as the parent component will handle it
-    // in the onFileSelect callback for better state flow control.
-  }
 
   return (
     <div

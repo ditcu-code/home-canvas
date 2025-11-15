@@ -397,9 +397,9 @@ const analyzeLocalLighting = async (
  */
 export const generateCompositeImage = async (
   objectImage: File,
-  objectDescription: string,
+  _objectDescription: string,
   environmentImage: File,
-  environmentDescription: string,
+  _environmentDescription: string,
   dropPosition: { xPercent: number; yPercent: number },
   scaleFactor: number = 1,
 ): Promise<{ finalImageUrl: string; debugImageUrl: string; finalPrompt: string }> => {

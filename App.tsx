@@ -13,8 +13,6 @@ import { dataURLtoFile } from "@/services/fileUtils"
 import { generateCompositeImage } from "@/services/geminiService"
 import { Product } from "@/types"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-// Drag-and-drop and touch DnD removed; click-to-place only
-// Utilities and constants moved to dedicated modules
 
 const App: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -187,18 +185,6 @@ const App: React.FC = () => {
     setOriginalSceneImage(null)
   }, [resetGenerationState])
 
-  const handleChangeProduct = useCallback(() => {
-    // Let useEffect handle URL revocation
-    setSelectedProduct(null)
-    setProductImageFile(null)
-    resetGenerationState()
-  }, [resetGenerationState])
-
-  const handleChangeScene = useCallback(() => {
-    setSceneImage(null)
-    setOriginalSceneImage(null)
-    resetGenerationState()
-  }, [resetGenerationState])
 
   const handleAdjustScale = useCallback(
     async (delta: number) => {
