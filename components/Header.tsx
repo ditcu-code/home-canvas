@@ -13,7 +13,7 @@ const Header: React.FC = () => {
         </h1>
       </div>
       <p className="mt-4 text-base md:text-lg text-zinc-600 max-w-3xl mx-auto">
-        Upload jewelry and a scene, then drag to place it. Gemini composes a photorealistic result.
+        Upload jewelry and a scene, then click to place it. Gemini composes a photorealistic result.
       </p>
     </header>
   );

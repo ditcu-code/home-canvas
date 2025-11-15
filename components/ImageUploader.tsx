@@ -23,8 +23,6 @@ interface ImageUploaderProps {
   onDebugClick?: () => void;
   showDownloadButton?: boolean;
   downloadUrl?: string | null;
-  isTouchHovering?: boolean;
-  touchOrbPosition?: { x: number; y: number } | null;
   openDialogRef?: MutableRefObject<(() => void) | null>;
 }
 
@@ -47,11 +45,9 @@ const WarningIcon: React.FC = () => (
 );
 
 
-const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showGenerateButton = false, onGenerateClick, showRetryButton = false, onRetryClick, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, isTouchHovering = false, touchOrbPosition = null, openDialogRef }, ref) => {
+const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, label, onFileSelect, imageUrl, isDropZone = false, onProductDrop, persistedOrbPosition, showGenerateButton = false, onGenerateClick, showRetryButton = false, onRetryClick, showDebugButton, onDebugClick, showDownloadButton, downloadUrl, openDialogRef }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [orbPosition, setOrbPosition] = useState<{x: number, y: number} | null>(null);
   const [fileTypeError, setFileTypeError] = useState<string | null>(null);
 
   // Expose the internal imgRef to the parent component via the forwarded ref
@@ -106,59 +102,14 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
     }
   };
   
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      setIsDraggingOver(true);
-      if (isDropZone && onProductDrop) {
-          const rect = event.currentTarget.getBoundingClientRect();
-          setOrbPosition({
-              x: event.clientX - rect.left,
-              y: event.clientY - rect.top
-          });
-      }
-  }, [isDropZone, onProductDrop]);
-
-  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      setIsDraggingOver(false);
-      setOrbPosition(null);
-  }, []);
-
-  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      setIsDraggingOver(false);
-      setOrbPosition(null);
-
-      if (isDropZone && onProductDrop) {
-          // Case 1: A product is being dropped onto the scene
-          handlePlacement(event.clientX, event.clientY, event.currentTarget);
-      } else {
-          // Case 2: A file is being dropped to be uploaded
-          const file = event.dataTransfer.files?.[0];
-          if (file && file.type.startsWith('image/')) {
-              const allowedTypes = ['image/jpeg', 'image/png'];
-              if (!allowedTypes.includes(file.type)) {
-                  setFileTypeError('For best results, please use PNG, JPG, or JPEG formats.');
-              } else {
-                  setFileTypeError(null);
-              }
-              onFileSelect(file);
-          }
-      }
-  }, [isDropZone, onProductDrop, onFileSelect, handlePlacement]);
-  
-  const showHoverState = isDraggingOver || isTouchHovering;
-  const currentOrbPosition = orbPosition || touchOrbPosition;
   const isActionable = isDropZone || !imageUrl;
 
   const uploaderClasses = [
     'w-full aspect-video rounded-xl bg-white/70 backdrop-blur-sm border border-zinc-200 shadow-sm',
     'transition-all duration-300 relative overflow-hidden ring-1 ring-inset ring-transparent',
-    showHoverState
-      ? 'border-blue-300 ring-blue-400/40 bg-blue-50/70 is-dragging-over'
-      : (isDropZone
-          ? 'border-zinc-300 cursor-crosshair hover:ring-blue-400/40 hover:border-blue-300'
-          : 'border-zinc-200 cursor-pointer hover:ring-blue-400/40 hover:border-blue-300'),
+    isDropZone
+      ? 'border-zinc-300 cursor-crosshair hover:ring-blue-400/40 hover:border-blue-300'
+      : 'border-zinc-200 cursor-pointer hover:ring-blue-400/40 hover:border-blue-300',
     !isActionable ? 'cursor-default' : ''
   ].join(' ');
 
@@ -168,9 +119,6 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
       <div
         className={uploaderClasses}
         onClick={isActionable ? handleClick : undefined}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
         data-dropzone-id={id}
       >
         <input
@@ -190,13 +138,6 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
               className="w-full h-full object-contain" 
             />
             
-            <div 
-                className="drop-orb" 
-                style={{ 
-                    left: currentOrbPosition ? currentOrbPosition.x : -9999, 
-                    top: currentOrbPosition ? currentOrbPosition.y : -9999 
-                }}
-            ></div>
             {persistedOrbPosition && (
                 <div 
                     className="drop-orb" 
@@ -261,7 +202,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(({ id, la
         ) : (
           <div className="flex h-full flex-col items-center justify-center text-center text-zinc-600 p-6">
             <UploadIcon />
-            <p className="font-medium">Click to upload or drag & drop</p>
+            <p className="font-medium">Click to upload</p>
             <p className="text-xs text-zinc-500 mt-1">PNG or JPG, up to ~10MB</p>
           </div>
         )}

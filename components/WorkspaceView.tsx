@@ -9,13 +9,11 @@ import Button from '@/components/Button';
 import ObjectCard from '@/components/ObjectCard';
 import ImageUploader from '@/components/ImageUploader';
 import ControlsBar from '@/components/ControlsBar';
-import { transparentDragImage } from '@/constants/drag';
+// Drag-and-drop removed; click-to-place only
 
 interface WorkspaceViewProps {
   selectedProduct: Product;
   onChangeProduct: () => void;
-  onTouchStart: (e: React.TouchEvent) => void;
-
   sceneImgRef: React.RefObject<HTMLImageElement>;
   sceneImageUrl: string;
   isLoading: boolean;
@@ -33,8 +31,6 @@ interface WorkspaceViewProps {
   onDebugClick: () => void;
   showDownloadButton: boolean;
   downloadUrl: string | null;
-  isTouchHovering: boolean;
-  touchOrbPosition: { x: number; y: number } | null;
   openSceneDialogRef: MutableRefObject<(() => void) | null>;
 
   // Controls
@@ -49,7 +45,6 @@ interface WorkspaceViewProps {
 const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   selectedProduct,
   onChangeProduct,
-  onTouchStart,
   sceneImgRef,
   sceneImageUrl,
   isLoading,
@@ -64,8 +59,6 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onDebugClick,
   showDownloadButton,
   downloadUrl,
-  isTouchHovering,
-  touchOrbPosition,
   openSceneDialogRef,
   canAdjust,
   onAdjustScale,
@@ -80,15 +73,7 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
       <div className="md:col-span-1 flex flex-col">
         <h2 className="text-2xl font-extrabold text-center mb-5 text-zinc-800">Jewelry</h2>
         <div className="flex-grow flex items-center justify-center">
-          <div
-            draggable="true"
-            onDragStart={(e) => {
-              e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer.setDragImage(transparentDragImage, 0, 0);
-            }}
-            onTouchStart={onTouchStart}
-            className="cursor-move w-full max-w-xs"
-          >
+          <div className="w-full max-w-xs">
             <ObjectCard product={selectedProduct} isSelected={true} />
           </div>
         </div>
@@ -121,8 +106,6 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             onDebugClick={onDebugClick}
             showDownloadButton={showDownloadButton}
             downloadUrl={downloadUrl}
-            isTouchHovering={isTouchHovering}
-            touchOrbPosition={touchOrbPosition}
             openDialogRef={openSceneDialogRef}
           />
         </div>

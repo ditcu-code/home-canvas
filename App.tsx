@@ -11,17 +11,13 @@ import { Product } from '@/types';
 import Header from '@/components/Header';
 import ProgressBar from '@/components/ProgressBar';
 import DebugModal from '@/components/DebugModal';
-import TouchGhost from '@/components/TouchGhost';
 import ErrorState from '@/components/ErrorState';
 import UploadView from '@/components/UploadView';
 import WorkspaceView from '@/components/WorkspaceView';
 import { useRotatingMessages } from '@/hooks/useRotatingMessages';
 import { useSimulatedProgress } from '@/hooks/useSimulatedProgress';
 import { useObjectUrlCleanup } from '@/hooks/useObjectUrlCleanup';
-import { useTouchDnD } from '@/hooks/useTouchDnD';
-
-// Drag ghost image moved to constants/drag.ts and used in WorkspaceView
-
+// Drag-and-drop and touch DnD removed; click-to-place only
 // Utilities and constants moved to dedicated modules
 
 
@@ -205,15 +201,7 @@ const App: React.FC = () => {
 
   // Effects above are handled by hooks now
 
-  const touch = useTouchDnD({
-    enabled: !!selectedProduct,
-    sceneImgRef,
-    onDrop: (position, relative) => {
-      handleProductDrop(position, relative);
-    }
-  });
-
-  // Touch DnD now handled by useTouchDnD
+  // Touch DnD removed; tap (click) on scene places the item
 
   const renderContent = () => {
     if (error) {
@@ -241,7 +229,6 @@ const App: React.FC = () => {
         <WorkspaceView
           selectedProduct={selectedProduct!}
           onChangeProduct={() => productFileInputRef.current?.click()}
-          onTouchStart={touch.handleTouchStart}
           sceneImgRef={sceneImgRef}
           sceneImageUrl={sceneImageUrl!}
           isLoading={isLoading}
@@ -256,8 +243,6 @@ const App: React.FC = () => {
           onDebugClick={() => setIsDebugModalOpen(true)}
           showDownloadButton={!!generatedSceneUrlForDownload && !isLoading && !persistedOrbPosition}
           downloadUrl={generatedSceneUrlForDownload}
-          isTouchHovering={touch.isHoveringDropZone}
-          touchOrbPosition={touch.touchOrbPosition}
           openSceneDialogRef={sceneUploaderOpenRef}
           canAdjust={!!(generatedSceneUrlForDownload && !isLoading && lastDropRelativePosition && originalSceneImage)}
           onAdjustScale={handleAdjustScale}
@@ -273,7 +258,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <p className="text-zinc-500 animate-fade-in">
-               Drag or click to select a location in the scene, then press Generate.
+               Click to select a location in the scene, then press Generate.
             </p>
           )}
         </div>
@@ -283,10 +268,6 @@ const App: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-white text-zinc-800 flex items-center justify-center p-4 md:p-8">
-      <TouchGhost 
-        imageUrl={touch.isTouchDragging ? productImageUrl : null} 
-        position={touch.touchGhostPosition}
-      />
       <div className="flex flex-col items-center gap-8 w-full">
         <Header />
         <main className="w-full">
