@@ -114,6 +114,8 @@ const WorkspaceView: React.FC<WorkspaceViewProps> = ({
           onChangeScene={onChangeScene}
           canReset={canReset}
           onReset={onReset}
+          showRetryButton={showRetryButton}
+          onRetryClick={onRetryClick}
         />
       </div>
     </div>

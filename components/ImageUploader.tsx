@@ -231,7 +231,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
                   }}
                 ></div>
               )}
-              {(showGenerateButton || showRetryButton || showDebugButton || showDownloadButton) && (
+              {(showGenerateButton || showDebugButton || showDownloadButton) && (
                 <div className="absolute bottom-2 right-2 flex items-center gap-2 z-20">
                   {showGenerateButton && onGenerateClick && (
                     <Button
@@ -244,19 +244,6 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
                       ariaLabel="Generate composed image"
                     >
                       Generate
-                    </Button>
-                  )}
-                  {showRetryButton && onRetryClick && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onRetryClick()
-                      }}
-                      ariaLabel="Retry generation"
-                    >
-                      Retry
                     </Button>
                   )}
                   {showDebugButton && onDebugClick && (
