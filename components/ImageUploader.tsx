@@ -1,6 +1,6 @@
-import Button from '@/components/Button'
-import { DownloadIcon, RetryIcon, UploadIcon, WarningIcon } from '@/components/SVGIcon'
-import { computeRelativePositionFromPoint } from '@/services/positioning'
+import Button from "@/components/Button"
+import { DownloadIcon, RetryIcon, UploadIcon, WarningIcon } from "@/components/SVGIcon"
+import { computeRelativePositionFromPoint } from "@/services/positioning"
 import React, {
   forwardRef,
   MutableRefObject,
@@ -176,17 +176,17 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
     const isActionable = isDropZone || !imageUrl
 
     const uploaderClasses = [
-      'w-full aspect-video rounded-xl backdrop-blur-sm border shadow-sm',
-      'bg-[hsl(var(--surface))] border-[hsl(var(--border))]',
-      'transition-all duration-300 relative overflow-hidden ring-1 ring-inset',
+      "w-full aspect-video rounded-xl backdrop-blur-sm border shadow-sm",
+      "bg-[hsl(var(--surface))] border-[hsl(var(--border))]",
+      "transition-all duration-300 relative overflow-hidden ring-1 ring-inset",
       isDropZone
-        ? 'cursor-crosshair hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]'
-        : 'cursor-pointer hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]',
+        ? "cursor-crosshair hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]"
+        : "cursor-pointer hover:ring-[hsl(var(--primary)/0.4)] hover:border-[hsl(var(--primary)/0.5)]",
       isDraggingOver && acceptsFileDrop
-        ? 'ring-[hsl(var(--primary)/0.6)] border-[hsl(var(--primary)/0.6)] bg-[hsl(var(--primary)/0.06)]'
-        : 'ring-transparent',
-      !isActionable ? 'cursor-default' : '',
-    ].join(' ')
+        ? "ring-[hsl(var(--primary)/0.6)] border-[hsl(var(--primary)/0.6)] bg-[hsl(var(--primary)/0.06)]"
+        : "ring-transparent",
+      !isActionable ? "cursor-default" : "",
+    ].join(" ")
 
     return (
       <div className="flex flex-col items-center w-full">
@@ -275,7 +275,7 @@ const ImageUploader = forwardRef<HTMLImageElement, ImageUploaderProps>(
                       variant="primary"
                       size="sm"
                       href={downloadUrl}
-                      download={`home-canvas-creation.jpeg`}
+                      download={`jewelry-canvas-creation.jpeg`}
                       onClick={(e) => e.stopPropagation()}
                       ariaLabel="Download generated image"
                       className="pl-2 pr-3"
